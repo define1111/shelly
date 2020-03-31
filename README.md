@@ -21,9 +21,9 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 
 ## How to use it?
 0. Build ELF:
-
+```
 $ make shelly
 
 1. Execute ELF:
-
+```
 $ ./shelly
