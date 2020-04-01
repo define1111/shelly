@@ -109,6 +109,7 @@ run_passes()
                 {
                     printf("open error: can't open file %s\n", commands[0]->in);
                     if (fd_out != -1) close(fd_out);
+                    free_conv(conveyor);
                     free_commands(commands);
                     return PASS_RET_CONTINUE;
                 }
@@ -165,8 +166,14 @@ run_passes()
                     {
                         if (i == 0) /* first command */
                         {
-                            if (fd_in != -1) dup2(fd_in, 0);
-                            dup2(pipe_fd[i][1], 1);
+                            if (fd_in != -1) 
+                            {
+                                dup2(fd_in, STDIN_FILENO);
+                                close(fd_in);
+                            }
+
+                            dup2(pipe_fd[i][1], STDOUT_FILENO);
+
                             for (unsigned int j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
@@ -175,8 +182,14 @@ run_passes()
                         }
                         else if (i == conveyor_length - 1) /* last command */
                         {
-                            if (fd_out != -1) dup2(fd_out, 1);
-                            dup2(pipe_fd[i - 1][0], 0);
+                            if (fd_out != -1) 
+                            {
+                                dup2(fd_out, STDOUT_FILENO);
+                                close(fd_out);
+                            }
+
+                            dup2(pipe_fd[i - 1][0], STDIN_FILENO);
+
                             for (unsigned int j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
@@ -185,19 +198,17 @@ run_passes()
                         }
                         else /* middle command */
                         {
-                            dup2(pipe_fd[i - 1][0], 0);
-                            dup2(pipe_fd[i][1], 1);
+                            dup2(pipe_fd[i - 1][0], STDIN_FILENO);
+                            dup2(pipe_fd[i][1], STDOUT_FILENO);
                             for (unsigned int j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
                                 close(pipe_fd[j][1]);
                             }
                         }
-                        if (execvp(commands[i]->args[0], commands[i]->args) < 0)
-                        {
-                            perror("exec");
-                            exit(EXEC_ERR);
-                        }
+                        execvp(commands[i]->args[0], commands[i]->args);
+                        perror("exec");
+                        exit(EXEC_ERR);
                     }
                 }
 
@@ -222,13 +233,21 @@ run_passes()
 
                 if (process == 0)
                 {
-                    if (fd_in != -1) dup2(fd_in, 0);
-                    if (fd_out != -1) dup2(fd_out, 1);
-                    if (execvp(commands[0]->args[0], commands[0]->args) < 0)
+                    if (fd_in != -1) 
                     {
-                        perror("exec");
-                        exit(EXEC_ERR);
+                        dup2(fd_in, STDIN_FILENO);
+                        close(fd_in);
                     }
+
+                    if (fd_out != -1) 
+                    {
+                        dup2(fd_out, STDOUT_FILENO);
+                        close(fd_out);
+                    }
+
+                    execvp(commands[0]->args[0], commands[0]->args);
+                    perror("exec");
+                    exit(EXEC_ERR);
                 }
         
                 waitpid(process, NULL, 0);

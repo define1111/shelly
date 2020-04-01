@@ -16,6 +16,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * background
 * regax (*, ?)
 * better promt
+* separete passes by functions
 * refract terrible code at conveyor and execute conveyor passes
 * refract makefile
 * conveyor &&
