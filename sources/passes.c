@@ -31,16 +31,26 @@ run_passes()
         switch (current_pass)
         {
         case PASS_START:
+        /* DESCRIPTION: useless pass, lol */
             break;
         case PASS_TOKENIZATION:
+        /* DESCRIPTION: this pass take pointer to list of tokens from stdin*/
             token_list_head = parse();
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
             break;
         case PASS_SPLIT_CONVEYOR:
+        /* DESCRIPTION: this pass take pointer to array of list of tokens
+           separeted by | token and free this token */
             conveyor = conv_parse(token_list_head);
             if (conveyor == NULL) return PASS_RET_CONTINUE;
             break;
         case PASS_GET_COMMANDS_FROM_CONVEYOR:
+        /* DESCRIPTION: this pass take array of commands. Command_t - special struct for
+           easy access to args, input file and output file. For example: 
+           $ ls -al | grep .txt | sort > file.txt interpreted as:
+           commands[0]: args = {"ls", "-al", NULL}, in = NULL, out = NULL
+           commands[1]: args = {"grep", ".txt", NULL}, in = NULL, out = NULL
+           commands[2]: args = {"sort", NULL}, in = NULL, out = "file.txt" */
             conveyor_length = conv_len(conveyor);
             commands = (command_t**) malloc((conveyor_length + 1) * sizeof(command_t*));
             if (commands == NULL)
@@ -62,7 +72,7 @@ run_passes()
             commands[i] = NULL;
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
-            /* DESCRIPTION: only first command can be builtin (maybe, I don't know) */
+            /* DESCRIPTION: only first command can be builtin. (maybe, I don't know) */
             if (strcmp(commands[0]->args[0], "cd") == 0)
             {
                 /* add it after env */

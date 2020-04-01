@@ -14,7 +14,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 
 ## Wish list:
 * background
-* regax
+* regax (*, ?)
 * better promt
 * refract terrible code at conveyor and execute conveyor passes
 * refract makefile
@@ -22,6 +22,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * "conveyor" ;
 * environment variables
 * redirect stream (stderr)
+* Ctrl + C
 
 ## How to use it?
 0. Build ELF:
