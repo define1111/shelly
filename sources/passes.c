@@ -63,7 +63,25 @@ run_passes()
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: only first command can be builtin (maybe, I don't know) */
-            if (!strcmp(commands[0]->args[0], "exit"))
+            if (strcmp(commands[0]->args[0], "cd") == 0)
+            {
+                /* add it after env */
+                /*if (commands[0]->args[1] == NULL || strcmp(commands[0]->args[1], "~" == 0)
+                {
+                    chdir(home);
+                }*/
+
+                /* temp */
+                if (commands[0]->args[1] == NULL)
+                    printf("cd: no args\n");
+
+                chdir(commands[0]->args[1]);
+
+                current_pass = PASS_FREE_ALLOCS - 1;
+                break;
+            }
+
+            if (strcmp(commands[0]->args[0], "exit") == 0)
             {   
                 free_conv(conveyor);
                 free_commands(commands);
