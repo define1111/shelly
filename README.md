@@ -24,6 +24,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * environment variables
 * redirect stream (stderr)
 * Ctrl + C
+* Ctrl + D
 
 ## How to use it?
 0. Build ELF:

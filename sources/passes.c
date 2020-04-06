@@ -60,12 +60,6 @@ run_passes()
             }
             for (i = 0; i < conveyor_length; ++i)
             {
-                commands[i] = (command_t*) malloc(sizeof(command_t));
-                if (commands[i] == NULL)
-                {
-                    perror("malloc");
-                    exit(ALLOC_ERR);
-                }
                 commands[i] = get_command(conveyor, i);
                 if (commands[i] == NULL) return PASS_RET_CONTINUE;
             }
@@ -85,7 +79,11 @@ run_passes()
                 if (commands[0]->args[1] == NULL)
                     printf("cd: no args\n");
 
-                chdir(commands[0]->args[1]);
+                if (chdir(commands[0]->args[1]) == -1)
+                {
+                    perror("chdir");
+                    exit(CHDIR_ERR);
+                }
 
                 current_pass = PASS_FREE_ALLOCS - 1;
                 break;
