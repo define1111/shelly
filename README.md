@@ -18,7 +18,6 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * better promt
 * separete passes by functions
 * refract terrible code at conveyor and execute conveyor passes
-* refract makefile
 * conveyor &&
 * "conveyor" ;
 * environment variables
@@ -27,11 +26,18 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * Ctrl + D
 
 ## How to use it?
-0. Build ELF:
+There is two version of programm: normal and instrumented with address-sanitizer.
+Normal version compiled by gcc, instrumented version compiled by clang.
+0. Build normal ELF:
 ```
 $ make shelly
 ```
 1. Execute ELF:
 ```
 $ ./shelly
+```
+* Build instrumented ELF:
+```
+$ export ASAN=1
+$ make shelly
 ```
