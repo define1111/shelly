@@ -28,11 +28,12 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 ## How to use it?
 There is two version of programm: normal and instrumented with address-sanitizer.
 Normal version compiled by gcc, instrumented version compiled by clang.
-0. Build normal ELF:
+
+* Build normal ELF:
 ```
 $ make shelly
 ```
-1. Execute ELF:
+* Execute ELF:
 ```
 $ ./shelly
 ```

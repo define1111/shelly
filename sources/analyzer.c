@@ -41,12 +41,10 @@ conv_parse(token_t *token_list_head)
             }
 
             iter->prev->next = NULL;
-
             conv[i - 1] = iter->next;
-
             iter->next->prev = NULL;
-
             free(iter);
+            iter = conv[i - 1];
         }
     }
 
