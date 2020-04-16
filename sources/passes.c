@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -11,6 +10,7 @@
 #include "../include/parser.h"
 #include "../include/analyzer.h"
 #include "../include/error_list.h"
+#include "../include/builtin_commands.h"
 
 pass_return_code_t 
 run_passes()
@@ -70,35 +70,9 @@ run_passes()
             commands[i] = NULL;
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
-            /* DESCRIPTION: only first command can be builtin. (maybe, I don't know) */
-            if (strcmp(commands[0]->args[0], "cd") == 0)
-            {
-                /* add it after env */
-                /*if (commands[0]->args[1] == NULL || strcmp(commands[0]->args[1], "~" == 0)
-                {
-                    chdir(home);
-                }*/
-
-                /* temp */
-                if (commands[0]->args[1] == NULL)
-                    printf("cd: no args\n");
-
-                if (chdir(commands[0]->args[1]) == -1)
-                {
-                    perror("chdir");
-                    exit(CHDIR_ERR);
-                }
-
-                current_pass = PASS_FREE_ALLOCS - 1;
-                break;
-            }
-
-            if (strcmp(commands[0]->args[0], "exit") == 0)
-            {   
-                free_conv(conveyor);
-                free_commands(commands);
+            /* DESCRIPTION: run builtin command */
+            if (run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
-            }
             break;
         case PASS_OPEN_FILES_FOR_CONVEYOR:
             /* DESCRIPTION: actually we need open only two files
