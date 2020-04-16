@@ -61,7 +61,11 @@ run_passes()
             for (i = 0; i < conveyor_length; ++i)
             {
                 commands[i] = get_command(conveyor, i);
-                if (commands[i] == NULL) return PASS_RET_CONTINUE;
+                if (commands[i] == NULL) 
+                {
+                    free_commands(commands);
+                    return PASS_RET_CONTINUE;
+                }
             }
             commands[i] = NULL;
             break;
