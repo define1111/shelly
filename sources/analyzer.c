@@ -96,27 +96,31 @@ get_command(token_t **conv, unsigned int conv_number)
     command->out = NULL;
 
     token_t *iter = NULL;
-    unsigned int i;
+    unsigned int i = 0;
 
     int flag_in = 1;
     int flag_out = 1;
 
-    for (iter = conv[conv_number], i = 0; iter; iter = iter->next, ++i)
+    for (iter = conv[conv_number]; iter; iter = iter->next)
     {
-        command->args = (char**) realloc(command->args, (i + 1) * sizeof(char*));
-        if (command->args == NULL)
-        {
-            perror("realloc");
-            exit(ALLOC_ERR);
-        }
-        
         if (iter->lex == LEX_ID || iter->lex == LEX_QUOTES)
-            command->args[i] = iter->value;
+        {
+            command->args = (char**) realloc(command->args, (i + 1) * sizeof(char*));
+            if (command->args == NULL)
+            {
+                perror("realloc");
+                exit(ALLOC_ERR);
+            }
+            command->args[i++] = iter->value;
+        }
         else if (iter->lex == LEX_MORE && flag_out)
         {
             flag_out = 0;
             if (iter->next != NULL && iter->next->lex == LEX_ID)
+            {
                 command->out = iter->next->value;
+                iter = iter->next;
+            }
             else
             {
                 printf("syntax error: output file after > expected\n");
@@ -129,7 +133,10 @@ get_command(token_t **conv, unsigned int conv_number)
         {
             flag_in = 0;
             if (iter->next != NULL && iter->next->lex == LEX_ID)
+            {
                 command->in = iter->next->value;
+                iter = iter->next;
+            }
             else
             {
                 printf("syntax error: input file after < expected\n");
