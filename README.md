@@ -7,18 +7,18 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * redirect stream (stdin, stdout)
 * conveyor |
 
-
 ## Builtin commands:
 * cd
 * help
 * exit
 
 ## Wish list:
-* background
-* regax (*, ?)
+* bg, fg
+* regex (*, ?)
 * better promt
-* separete passes by functions
+* separete passes by functions (in process)
 * refract terrible code at conveyor and execute conveyor passes
+* improve parser
 * conveyor &&
 * "conveyor" ;
 * environment variables
