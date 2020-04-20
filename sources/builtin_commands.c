@@ -6,26 +6,7 @@
 #include "../include/passes.h"
 #include "../include/analyzer.h"
 #include "../include/error_list.h"
-
-static int
-string_length(const char *str)
-{
-    const char *ptr;
-
-    for (ptr = str; *ptr; ++ptr)
-        ;
-
-    return ptr - str;
-}
-
-static int 
-string_compare(const char *str1, const char *str2)
-{
-    for (; *str1 && *str1 == *str2; ++str1, ++str2)
-        ;
-
-    return (unsigned char) *str1 - (unsigned char) *str2;
-}
+#include "../include/shelly_string.h"
 
 /* only first command can be builtin. (maybe, I don't know) */
 pass_return_code_t 

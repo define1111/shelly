@@ -3,6 +3,7 @@
 
 #include "../include/parser.h"
 #include "../include/error_list.h"
+#include "../include/shelly_string.h"
 
 static token_t *
 get_tail(token_t *head)
@@ -40,7 +41,7 @@ push_tail_token(token_t *head, lex_t lex, char *value)
 }
 
 token_t *
-parse()
+parse_step_1()
 {
     int ch = 0;
     state_lex_t state = STATE_LOOP;
@@ -68,7 +69,12 @@ parse()
             }
             else if (ch == '"')
             {
-                state = STATE_QUOTES;
+                state = STATE_DOUBLE_QUOTES;
+                is_read = 1;
+            }
+            else if (ch == '\'')
+            {
+                state = STATE_SINGLE_QUOTES;
                 is_read = 1;
             }
             else if (ch == '>')
@@ -95,6 +101,12 @@ parse()
                 is_read = 1;
                 head = push_tail_token(head, LEX_CONV, NULL);
             }
+            else if (ch == ';')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                head = push_tail_token(head, LEX_SEMICOLON, NULL);
+            }
             else
             {
                 state = STATE_IN_ID;
@@ -109,7 +121,7 @@ parse()
                 exit(ALLOC_ERR);
             }
             if (!(ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                  ch == '>' || ch == '<' || ch == '&' || ch == '|'))
+                  ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';'))
             {
                 state = STATE_IN_ID;
                 if (ch == '\\') /* mb another one state of DFA for spaces and end token? */
@@ -136,7 +148,7 @@ parse()
                 value[i - 1] = (char) ch;
             }
             if (ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                ch == '>' || ch == '<' || ch == '&' || ch == '|')
+                ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';')
             {
                 state = STATE_LOOP;
                 is_read = 0;
@@ -146,7 +158,7 @@ parse()
                 i = 0;
             }
             break;
-        case STATE_QUOTES:
+        case STATE_DOUBLE_QUOTES:
             value = (char*) realloc(value, ++i * sizeof(char));
             if (value == NULL)
             {
@@ -155,7 +167,7 @@ parse()
             }
             if (ch != '"')
             {
-                state = STATE_QUOTES;
+                state = STATE_DOUBLE_QUOTES;
                 is_read = 1;
                 value[i - 1] = (char) ch;
             }
@@ -164,13 +176,43 @@ parse()
                 state = STATE_LOOP;
                 is_read = 1;
                 value[i - 1] = '\0';
-                head = push_tail_token(head, LEX_QUOTES, value);
+                head = push_tail_token(head, LEX_DOUBLE_QUOTES, value);
                 value = NULL;
                 i = 0;
             }
-            if (ch == EOF || ch == '\n') /*mb another state for error ? */
+            if (ch == EOF || ch == '\n') /* mb another state for error ? */
             {
                 printf("syntax error: close \" expected\n");
+                free(value);
+                free_token_list(&head);
+                return NULL;
+            }
+            break;
+        case STATE_SINGLE_QUOTES:
+            value = (char*) realloc(value, ++i * sizeof(char));
+            if (value == NULL)
+            {
+                perror("realloc");
+                exit(ALLOC_ERR);
+            }
+            if (ch != '\'')
+            {
+                state = STATE_SINGLE_QUOTES;
+                is_read = 1;
+                value[i - 1] = (char) ch;
+            }
+            if (ch == '\'')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value[i - 1] = '\0';
+                head = push_tail_token(head, LES_SINGLE_QUOTES, value);
+                value = NULL;
+                i = 0;
+            }
+            if (ch == EOF || ch == '\n') /* mb another state for error ? */
+            {
+                printf("syntax error: close \' expected\n");
                 free(value);
                 free_token_list(&head);
                 return NULL;
@@ -180,6 +222,68 @@ parse()
             return head;
         }
     }
+}
+
+token_t *
+parse_step_2(token_t *token_list_head)
+{
+    token_t *iter = NULL;
+    token_t *tmp = NULL;
+
+    for (iter = token_list_head; iter; iter = iter->next)
+    {
+        if (iter->lex == LEX_ID)
+        {
+            if (string_search_2_symbols(iter->value, '?', '*'))
+            {
+                printf("here!\n");
+                iter->lex = LEX_REGEX_TEMPLATE;
+            }
+            else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
+                     iter->next != NULL && iter->next->lex == LEX_MORE)
+            {
+                if (iter == token_list_head)
+                {
+                    printf("before 2> must be id\n");
+                    free_token_list(&token_list_head);
+                    return NULL;
+                }
+                else
+                {
+                    tmp = iter->prev;
+                    tmp->next = iter->next;
+                    iter->next->prev = tmp;
+                    free(iter->value);
+                    free(iter);
+                    iter = tmp;
+                    iter->next->lex = LEX_TWO_MORE;
+                }
+            }
+        } /* end if lex id */
+        else if (iter->lex == LEX_AND)
+        {
+            if (iter->next != NULL && iter->next->lex == LEX_AND)
+            {
+                if (iter == token_list_head)
+                {
+                    printf("before & must be id\n");
+                    free_token_list(&token_list_head);
+                    return NULL;
+                }
+                else
+                {
+                    tmp = iter->prev;
+                    tmp->next = iter->next;
+                    iter->next->prev = tmp;
+                    free(iter);
+                    iter = tmp;
+                    iter->next->lex = LEX_ANDAND;
+                }
+            }
+        } /* end if lex and */
+    } /* end for */
+
+    return token_list_head;
 }
 
 void

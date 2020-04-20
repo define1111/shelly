@@ -1,6 +1,6 @@
 SRCDIR = sources
 SRCFILES += $(SRCDIR)/main.c $(SRCDIR)/analyzer.c $(SRCDIR)/parser.c
-SRCFILES += $(SRCDIR)/passes.c $(SRCDIR)/builtin_commands.c
+SRCFILES += $(SRCDIR)/passes.c $(SRCDIR)/builtin_commands.c $(SRCDIR)/shelly_string.c
 OBJFILES = $(SRCFILES:.c=.o)
 
 %.o: %.c 

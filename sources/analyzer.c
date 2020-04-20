@@ -100,7 +100,7 @@ get_command(token_t **conv, unsigned int conv_number)
 
     for (iter = conv[conv_number]; iter; iter = iter->next)
     {
-        if (iter->lex == LEX_ID || iter->lex == LEX_QUOTES)
+        if (iter->lex == LEX_ID || iter->lex == LES_SINGLE_QUOTES || iter->lex == LEX_DOUBLE_QUOTES)
         {
             command->args = (char**) realloc(command->args, (i + 1) * sizeof(char*));
             if (command->args == NULL)
@@ -112,7 +112,6 @@ get_command(token_t **conv, unsigned int conv_number)
         }
         else if (iter->lex == LEX_MORE)
         {
-            //flag_out = 0;
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
                 command->out = iter->next->value;
@@ -128,7 +127,6 @@ get_command(token_t **conv, unsigned int conv_number)
         }
         else if (iter->lex == LEX_LESS)
         {
-            //flag_in = 0;
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
                 command->in = iter->next->value;

@@ -35,8 +35,11 @@ run_passes()
             break;
         case PASS_TOKENIZATION:
         /* DESCRIPTION: this pass take pointer to list of tokens from stdin*/
-            token_list_head = parse();
+            token_list_head = parse_step_1();
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
+            token_list_head = parse_step_2(token_list_head);
+            if (token_list_head == NULL) return PASS_RET_CONTINUE;
+            //print_token_list(token_list_head);
             break;
         case PASS_SPLIT_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens
