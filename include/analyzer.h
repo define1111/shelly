@@ -8,6 +8,7 @@ struct command_t
     char **args;
     char *in;
     char *out;
+    char *err_out;
 };
 typedef struct command_t command_t; 
 

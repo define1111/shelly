@@ -94,6 +94,7 @@ get_command(token_t **conv, unsigned int conv_number)
     command->args = NULL;
     command->in = NULL;
     command->out = NULL;
+    command->err_out = NULL;
 
     token_t *iter = NULL;
     unsigned int i = 0;
@@ -135,6 +136,21 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: input file after < expected\n");
+                free_conv(conv);
+                free_command(command);
+                return NULL;
+            }
+        }
+        else if (iter->lex == LEX_TWO_MORE)
+        {
+            if (iter->next != NULL && iter->next->lex == LEX_ID)
+            {
+                command->err_out = iter->next->value;
+                iter = iter->next;
+            }
+            else
+            {
+                printf("syntax error: input file after 2> expected\n");
                 free_conv(conv);
                 free_command(command);
                 return NULL;

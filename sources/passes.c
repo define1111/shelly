@@ -22,6 +22,7 @@ run_passes()
     unsigned int i;
     int fd_in = -1;
     int fd_out = -1;
+    int fd_err = -1;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
     pid_t process = -1;
     pid_t *pid_arr = NULL; /* he he */
@@ -80,27 +81,41 @@ run_passes()
         case PASS_OPEN_FILES_FOR_CONVEYOR:
             /* DESCRIPTION: actually we need open only two files
                for conveyor: fd_in for first command and fd_out
-               for last command */
+               for last command and fd_err for all commands */
             if (commands[0]->in != NULL)
             {
                 fd_in = open(commands[0]->in, O_RDONLY, S_IRUSR|S_IWUSR);
                 if (fd_in == -1)
                 {
                     printf("open error: can't open file %s\n", commands[0]->in);
-                    if (fd_out != -1) close(fd_out);
+                    //if (fd_out != -1) close(fd_out);
                     free_conv(conveyor);
                     free_commands(commands);
                     return PASS_RET_CONTINUE;
                 }
             }
-
+            for (unsigned int j = 0; j < conveyor_length; ++j)
+            {
+                if (commands[j]->err_out != NULL)
+                {
+                    fd_err = open(commands[j]->err_out, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
+                    if (fd_err == -1)
+                    {
+                        printf("open error: can't open file %s\n", commands[j]->err_out);
+                        //if (fd_in != -1) close(fd_in);
+                        free_conv(conveyor);
+                        free_commands(commands);
+                        return PASS_RET_CONTINUE;
+                    }
+                }
+            }
             if (commands[conveyor_length - 1]->out != NULL)
             {
                 fd_out = open(commands[conveyor_length - 1]->out, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
                 if (fd_out == -1)
                 {
                     printf("open error: can't open file %s\n", commands[conveyor_length - 1]->out);
-                    if (fd_in != -1) close(fd_in);
+                    //if (fd_in != -1) close(fd_in);
                     free_conv(conveyor);
                     free_commands(commands);
                     return PASS_RET_CONTINUE;
@@ -151,6 +166,12 @@ run_passes()
                                 close(fd_in);
                             }
 
+                            if (fd_err != -1)
+                            {
+                                dup2(fd_err, STDERR_FILENO);
+                                close(fd_err);
+                            }
+
                             dup2(pipe_fd[i][1], STDOUT_FILENO);
 
                             for (unsigned int j = 0; j < i; ++j)
@@ -167,6 +188,12 @@ run_passes()
                                 close(fd_out);
                             }
 
+                            if (fd_err != -1)
+                            {
+                                dup2(fd_err, STDERR_FILENO);
+                                close(fd_err);
+                            }
+
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
 
                             for (unsigned int j = 0; j < i; ++j)
@@ -177,8 +204,15 @@ run_passes()
                         }
                         else /* middle command */
                         {
+                            if (fd_err != -1)
+                            {
+                                dup2(fd_err, STDERR_FILENO);
+                                close(fd_err);
+                            }
+
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
                             dup2(pipe_fd[i][1], STDOUT_FILENO);
+                            
                             for (unsigned int j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
@@ -217,13 +251,16 @@ run_passes()
                         dup2(fd_in, STDIN_FILENO);
                         close(fd_in);
                     }
-
                     if (fd_out != -1) 
                     {
                         dup2(fd_out, STDOUT_FILENO);
                         close(fd_out);
                     }
-
+                    if (fd_err != -1)
+                    {
+                        dup2(fd_err, STDERR_FILENO);
+                        close(fd_err);
+                    }
                     execvp(commands[0]->args[0], commands[0]->args);
                     perror("exec");
                     exit(EXEC_ERR);
@@ -231,10 +268,6 @@ run_passes()
         
                 waitpid(process, NULL, 0);
             }
-            break;
-        case PASS_CLOSE_FILES_FOR_CONVEYOR:
-            if (fd_in != -1) close(fd_in);
-            if (fd_out != -1) close(fd_out);
             break;
         case PASS_FREE_ALLOCS:
             if (conveyor_length > 1) 

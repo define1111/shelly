@@ -235,10 +235,7 @@ parse_step_2(token_t *token_list_head)
         if (iter->lex == LEX_ID)
         {
             if (string_search_2_symbols(iter->value, '?', '*'))
-            {
-                printf("here!\n");
                 iter->lex = LEX_REGEX_TEMPLATE;
-            }
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
                      iter->next != NULL && iter->next->lex == LEX_MORE)
             {

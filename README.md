@@ -4,7 +4,8 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 ## Features:
 * passes-style code
 * flexible parser that is easy to improve
-* redirect stream (stdin, stdout)
+* single and double quotes
+* redirect stream (stdin, stdout, stderr)
 * conveyor |
 
 ## Builtin commands:
@@ -18,13 +19,12 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * better promt
 * separete passes by functions (in process)
 * refract terrible code at conveyor and execute conveyor passes
-* improve parser
 * conveyor &&
 * "conveyor" ;
-* environment variables
-* redirect stream (stderr)
+* environment variables (and export)
 * Ctrl + C
 * Ctrl + D
+* history
 
 ## How to use it?
 There is two version of programm: normal and instrumented with address-sanitizer.
