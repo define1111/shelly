@@ -10,6 +10,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 
 ## Builtin commands:
 * cd
+* mur
 * help
 * exit
 

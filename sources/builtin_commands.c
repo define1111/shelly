@@ -39,6 +39,27 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
             return PASS_RET_CONTINUE;
         }
     }
+    else if (command_length == 3)
+    {
+        if (string_compare(commands[0]->args[0], "mur") == 0)
+        {
+            if (commands[0]->args[1] != NULL && string_compare(commands[0]->args[1], "-n") == 0)
+            {
+                if (commands[0]->args[2] != NULL)
+                {
+                    int num = atoi(commands[0]->args[2]);
+                    for (int i = 0; i < num; ++i)
+                        printf("mur ");
+                }
+            }
+
+            printf(":3\n");
+
+            *current_pass = PASS_FREE_ALLOCS - 1;
+
+            return PASS_RET_CONTINUE;
+        }
+    }
     else if (command_length == 4)
     {
         if (string_compare(commands[0]->args[0], "help") == 0)
