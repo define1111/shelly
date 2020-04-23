@@ -95,6 +95,7 @@ get_command(token_t **conv, unsigned int conv_number)
     command->in = NULL;
     command->out = NULL;
     command->err_out = NULL;
+    command->output_type = OUTPUT_TYPE_NONE;
 
     token_t *iter = NULL;
     unsigned int i = 0;
@@ -116,11 +117,28 @@ get_command(token_t **conv, unsigned int conv_number)
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
                 command->out = iter->next->value;
+                command->output_type = OUTPUT_TYPE_REWRITE;
                 iter = iter->next;
             }
             else
             {
                 printf("syntax error: output file after > expected\n");
+                free_conv(conv);
+                free_command(command);
+                return NULL;
+            }
+        }
+        else if (iter->lex == LEX_MOREMORE)
+        {
+            if (iter->next != NULL && iter->next->lex == LEX_ID)
+            {
+                command->out = iter->next->value;
+                command->output_type = OUTPUT_TYPE_APPEND;
+                iter = iter->next;
+            }
+            else
+            {
+                printf("syntax error: output file after >> expected\n");
                 free_conv(conv);
                 free_command(command);
                 return NULL;

@@ -88,7 +88,6 @@ run_passes()
                 if (fd_in == -1)
                 {
                     printf("open error: can't open file %s\n", commands[0]->in);
-                    //if (fd_out != -1) close(fd_out);
                     free_conv(conveyor);
                     free_commands(commands);
                     return PASS_RET_CONTINUE;
@@ -102,20 +101,29 @@ run_passes()
                     if (fd_err == -1)
                     {
                         printf("open error: can't open file %s\n", commands[j]->err_out);
-                        //if (fd_in != -1) close(fd_in);
                         free_conv(conveyor);
                         free_commands(commands);
                         return PASS_RET_CONTINUE;
                     }
                 }
             }
-            if (commands[conveyor_length - 1]->out != NULL)
+            if (commands[conveyor_length - 1]->output_type == OUTPUT_TYPE_REWRITE)
             {
                 fd_out = open(commands[conveyor_length - 1]->out, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
                 if (fd_out == -1)
                 {
                     printf("open error: can't open file %s\n", commands[conveyor_length - 1]->out);
-                    //if (fd_in != -1) close(fd_in);
+                    free_conv(conveyor);
+                    free_commands(commands);
+                    return PASS_RET_CONTINUE;
+                }
+            }
+            else if (commands[conveyor_length - 1]->output_type == OUTPUT_TYPE_APPEND)
+            {
+                fd_out = open(commands[conveyor_length - 1]->out, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
+                if (fd_out == -1)
+                {
+                    printf("open error: can't open file %s\n", commands[conveyor_length - 1]->out);
                     free_conv(conveyor);
                     free_commands(commands);
                     return PASS_RET_CONTINUE;

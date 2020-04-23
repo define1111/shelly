@@ -278,6 +278,25 @@ parse_step_2(token_t *token_list_head)
                 }
             }
         } /* end if lex and */
+        else if (iter->lex == LEX_MORE)
+        {
+            if (iter == token_list_head)
+            {
+                printf("before > must be id\n");
+                free_token_list(&token_list_head);
+                return NULL;
+            }
+            if (iter->next != NULL && iter->next->lex == LEX_MORE)
+            {
+                tmp = iter->prev;
+                tmp->next = iter->next;
+                iter->next->prev = tmp;
+                free(iter->value);
+                free(iter);
+                iter = tmp;
+                iter->next->lex = LEX_MOREMORE;
+            }
+        } /* end if lex more */
     } /* end for */
 
     return token_list_head;

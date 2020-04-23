@@ -3,12 +3,16 @@
 
 #include "parser.h"
 
+enum output_type_t { OUTPUT_TYPE_NONE = 0, OUTPUT_TYPE_REWRITE, OUTPUT_TYPE_APPEND };
+typedef enum output_type_t output_type_t;
+
 struct command_t
 {
     char **args;
     char *in;
     char *out;
     char *err_out;
+    output_type_t output_type;
 };
 typedef struct command_t command_t; 
 
