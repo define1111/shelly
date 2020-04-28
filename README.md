@@ -4,8 +4,9 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 ## Features:
 * passes-style code
 * flexible parser that is easy to improve
+* abstraction command
 * single and double quotes
-* redirect stream (stdin, stdout, stderr)
+* redirect stream (stdin, stdout (rewrite/append), stderr (rewrite/append))
 * conveyor |
 
 ## Builtin commands:
@@ -15,12 +16,14 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * exit
 
 ## Wish list:
+* abstraction conveyor
+* abstraction job
 * bg, fg
 * regex (*, ?)
 * better promt
 * separete passes by functions (in process)
 * refract terrible code at conveyor and execute conveyor passes
-* conveyor &&
+* "conveyor" &&
 * "conveyor" ;
 * environment variables (and export)
 * Ctrl + C

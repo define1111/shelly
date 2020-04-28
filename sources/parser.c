@@ -245,6 +245,18 @@ parse_step_2(token_t *token_list_head)
                     free_token_list(&token_list_head);
                     return NULL;
                 }
+
+                if (iter->next->next != NULL && iter->next->next->lex == LEX_MORE)
+                {
+                    tmp = iter->prev;
+                    tmp->next = iter->next->next;
+                    iter->next->next->prev = tmp;
+                    free(iter->next);
+                    free(iter->value);
+                    free(iter);
+                    iter = tmp;
+                    iter->next->lex = LEX_TWO_MOREMORE;
+                }
                 else
                 {
                     tmp = iter->prev;

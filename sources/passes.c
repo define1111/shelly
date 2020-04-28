@@ -90,9 +90,20 @@ run_passes()
             }
             for (unsigned int j = 0; j < conveyor_length; ++j)
             {
-                if (commands[j]->error_output_file != NULL)
+                if (commands[j]->error_output_type == OUTPUT_TYPE_REWRITE)
                 {
                     fd_err = open(commands[j]->error_output_file, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
+                    if (fd_err == -1)
+                    {
+                        printf("open error: can't open file %s\n", commands[j]->error_output_file);
+                        free_conv(conveyor);
+                        free_commands(commands);
+                        return PASS_RET_CONTINUE;
+                    }
+                }
+                else if (commands[j]->error_output_type == OUTPUT_TYPE_APPEND)
+                {
+                    fd_err = open(commands[j]->error_output_file, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
                     if (fd_err == -1)
                     {
                         printf("open error: can't open file %s\n", commands[j]->error_output_file);

@@ -13,6 +13,7 @@ struct command_t
     char *output_file;
     char *error_output_file;
     output_type_t output_type;
+    output_type_t error_output_type;
 };
 typedef struct command_t command_t; 
 

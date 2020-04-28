@@ -68,8 +68,12 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
             printf("This is my simple command line interpreter for Linux. Im writing it for self-education purposes.\n");
             printf("Builtin commands:\n");
             printf("cd\n");
+            printf("mur\n");
             printf("help\n");
             printf("exit\n");
+            printf("command mur makes the shelly purr\n");
+            printf("$ mur -n 3\n");
+            printf("mur mur mur :3\n");
             printf("Support execute external commands with conveyor and redirect streams\n");
 
             *current_pass = PASS_FREE_ALLOCS - 1;
