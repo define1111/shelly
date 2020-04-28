@@ -73,11 +73,6 @@ run_passes()
             }
             commands[i] = NULL;
             break;
-        case PASS_EXECUTE_BUILTIN_COMMAND:
-            /* DESCRIPTION: run builtin command */
-            if (run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
-                return PASS_RET_SUCCESS;
-            break;
         case PASS_OPEN_FILES_FOR_CONVEYOR:
             /* DESCRIPTION: actually we need open only two files
                for conveyor: fd_in for first command and fd_out
@@ -129,6 +124,11 @@ run_passes()
                     return PASS_RET_CONTINUE;
                 }
             }
+            break;
+        case PASS_EXECUTE_BUILTIN_COMMAND:
+            /* DESCRIPTION: run builtin command */
+            if (run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
+                return PASS_RET_SUCCESS;
             break;
         case PASS_INIT_CONVEYOR:
             if (conveyor_length <= 1) break;
