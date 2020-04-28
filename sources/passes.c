@@ -8,7 +8,7 @@
 
 #include "../include/passes.h"
 #include "../include/parser.h"
-#include "../include/analyzer.h"
+#include "../include/command.h"
 #include "../include/error_list.h"
 #include "../include/builtin_commands.h"
 

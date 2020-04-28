@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../include/parser.h"
-#include "../include/analyzer.h"
+#include "../include/command.h"
 #include "../include/error_list.h"
 
 token_t **
@@ -124,7 +124,8 @@ get_command(token_t **conv, unsigned int conv_number)
             {
                 printf("syntax error: output file after > expected\n");
                 free_conv(conv);
-                free_command(command);
+                free(command->args);
+                free(command);
                 return NULL;
             }
         }
@@ -140,7 +141,8 @@ get_command(token_t **conv, unsigned int conv_number)
             {
                 printf("syntax error: output file after >> expected\n");
                 free_conv(conv);
-                free_command(command);
+                free(command->args);
+                free(command);
                 return NULL;
             }
         }
@@ -155,7 +157,8 @@ get_command(token_t **conv, unsigned int conv_number)
             {
                 printf("syntax error: input file after < expected\n");
                 free_conv(conv);
-                free_command(command);
+                free(command->args);
+                free(command);
                 return NULL;
             }
         }
@@ -170,7 +173,8 @@ get_command(token_t **conv, unsigned int conv_number)
             {
                 printf("syntax error: input file after 2> expected\n");
                 free_conv(conv);
-                free_command(command);
+                free(command->args);
+                free(command);
                 return NULL;
             }
         }
@@ -188,19 +192,15 @@ get_command(token_t **conv, unsigned int conv_number)
 }
 
 void
-free_command(command_t *command)
-{
-    free(command->args);
-    free(command);
-}
-
-void
 free_commands(command_t **commands)
 {
     unsigned int i;
 
     for (i = 0; commands[i] != NULL; ++i)
-        free_command(commands[i]);
+    {
+        free(commands[i]->args);
+        free(commands[i]);
+    }
     
     free(commands);
 }

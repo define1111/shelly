@@ -4,7 +4,7 @@
 
 #include "../include/builtin_commands.h"
 #include "../include/passes.h"
-#include "../include/analyzer.h"
+#include "../include/command.h"
 #include "../include/error_list.h"
 #include "../include/shelly_string.h"
 
