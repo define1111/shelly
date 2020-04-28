@@ -92,9 +92,9 @@ get_command(token_t **conv, unsigned int conv_number)
     }
 
     command->args = NULL;
-    command->in = NULL;
-    command->out = NULL;
-    command->err_out = NULL;
+    command->input_file = NULL;
+    command->output_file = NULL;
+    command->error_output_file = NULL;
     command->output_type = OUTPUT_TYPE_NONE;
 
     token_t *iter = NULL;
@@ -116,7 +116,7 @@ get_command(token_t **conv, unsigned int conv_number)
         {
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
-                command->out = iter->next->value;
+                command->output_file = iter->next->value;
                 command->output_type = OUTPUT_TYPE_REWRITE;
                 iter = iter->next;
             }
@@ -132,7 +132,7 @@ get_command(token_t **conv, unsigned int conv_number)
         {
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
-                command->out = iter->next->value;
+                command->output_file = iter->next->value;
                 command->output_type = OUTPUT_TYPE_APPEND;
                 iter = iter->next;
             }
@@ -148,7 +148,7 @@ get_command(token_t **conv, unsigned int conv_number)
         {
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
-                command->in = iter->next->value;
+                command->input_file = iter->next->value;
                 iter = iter->next;
             }
             else
@@ -163,7 +163,7 @@ get_command(token_t **conv, unsigned int conv_number)
         {
             if (iter->next != NULL && iter->next->lex == LEX_ID)
             {
-                command->err_out = iter->next->value;
+                command->error_output_file = iter->next->value;
                 iter = iter->next;
             }
             else

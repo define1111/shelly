@@ -9,9 +9,9 @@ typedef enum output_type_t output_type_t;
 struct command_t
 {
     char **args;
-    char *in;
-    char *out;
-    char *err_out;
+    char *input_file;
+    char *output_file;
+    char *error_output_file;
     output_type_t output_type;
 };
 typedef struct command_t command_t; 
