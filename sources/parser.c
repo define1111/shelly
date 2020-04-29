@@ -309,6 +309,12 @@ parse_step_2(token_t *token_list_head)
                 iter->next->lex = LEX_MOREMORE;
             }
         } /* end if lex more */
+        else if (iter->lex == LEX_LESS && iter == token_list_head)
+        {
+            printf("before < must be id\n");
+            free_token_list(&token_list_head);
+            return NULL;
+        }/* end if lex less */
     } /* end for */
 
     return token_list_head;
