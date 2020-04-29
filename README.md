@@ -18,6 +18,8 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 ## Wish list:
 * abstraction conveyor
 * abstraction job
+* redirect stream for builtin commands
+* conveyors for builtin commands
 * bg, fg
 * regex (*, ?)
 * better promt

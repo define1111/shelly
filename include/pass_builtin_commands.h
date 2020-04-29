@@ -1,5 +1,5 @@
-#ifndef SENTRY_BUILTIN_COMMANDS_H
-#define SENTRY_BUILTIN_COMMANDS_H
+#ifndef SENTRY_PASS_BUILTIN_COMMANDS_H
+#define SENTRY_PASS_BUILTIN_COMMANDS_H
 
 #include "passes.h"
 #include "command.h"
