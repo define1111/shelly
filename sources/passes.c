@@ -11,6 +11,7 @@
 #include "../include/command.h"
 #include "../include/error_list.h"
 #include "../include/builtin_commands.h"
+#include "../include/pass_open_files.h"
 
 pass_return_code_t 
 run_passes()
@@ -47,7 +48,7 @@ run_passes()
             break;
         case PASS_GET_COMMANDS_FROM_CONVEYOR:
         /* DESCRIPTION: this pass take array of commands. Command_t - special struct for
-           easy access to args, input file and output file. For example: 
+           easy access to args, files. For example:
            $ ls -al | grep .txt | sort > file.txt interpreted as:
            commands[0]: args = {"ls", "-al", NULL}, in = NULL, out = NULL
            commands[1]: args = {"grep", ".txt", NULL}, in = NULL, out = NULL
@@ -74,64 +75,8 @@ run_passes()
             /* DESCRIPTION: actually we need open only two files
                for conveyor: fd_in for first command and fd_out
                for last command and fd_err for all commands */
-            if (commands[0]->input_file != NULL)
-            {
-                commands[0]->fd_input_file = open(commands[0]->input_file, O_RDONLY, S_IRUSR|S_IWUSR);
-                if (commands[0]->fd_input_file == -1)
-                {
-                    printf("open error: can't open file %s\n", commands[0]->input_file);
-                    free_conv(conveyor);
-                    free_commands(commands);
-                    return PASS_RET_CONTINUE;
-                }
-            }
-            for (unsigned int j = 0; j < conveyor_length; ++j)
-            {
-                if (commands[j]->error_output_type == OUTPUT_TYPE_REWRITE)
-                {
-                    commands[j]->fd_error_output_file = open(commands[j]->error_output_file, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
-                    if (commands[j]->fd_error_output_file == -1)
-                    {
-                        printf("open error: can't open file %s\n", commands[j]->error_output_file);
-                        free_conv(conveyor);
-                        free_commands(commands);
-                        return PASS_RET_CONTINUE;
-                    }
-                }
-                else if (commands[j]->error_output_type == OUTPUT_TYPE_APPEND)
-                {
-                    commands[j]->fd_error_output_file = open(commands[j]->error_output_file, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
-                    if (commands[j]->fd_error_output_file == -1)
-                    {
-                        printf("open error: can't open file %s\n", commands[j]->error_output_file);
-                        free_conv(conveyor);
-                        free_commands(commands);
-                        return PASS_RET_CONTINUE;
-                    }
-                }
-            }
-            if (commands[conveyor_length - 1]->output_type == OUTPUT_TYPE_REWRITE)
-            {
-                commands[conveyor_length - 1]->fd_output_file = open(commands[conveyor_length - 1]->output_file, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
-                if (commands[conveyor_length - 1]->fd_output_file == -1)
-                {
-                    printf("open error: can't open file %s\n", commands[conveyor_length - 1]->output_file);
-                    free_conv(conveyor);
-                    free_commands(commands);
-                    return PASS_RET_CONTINUE;
-                }
-            }
-            else if (commands[conveyor_length - 1]->output_type == OUTPUT_TYPE_APPEND)
-            {
-                commands[conveyor_length - 1]->fd_output_file = open(commands[conveyor_length - 1]->output_file, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR);
-                if (commands[conveyor_length - 1]->fd_output_file == -1)
-                {
-                    printf("open error: can't open file %s\n", commands[conveyor_length - 1]->output_file);
-                    free_conv(conveyor);
-                    free_commands(commands);
-                    return PASS_RET_CONTINUE;
-                }
-            }
+            if (run_open_files(commands, conveyor, conveyor_length) == PASS_RET_CONTINUE)
+                return PASS_RET_CONTINUE;
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
