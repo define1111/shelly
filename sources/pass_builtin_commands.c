@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "../include/builtin_commands.h"
+#include "../include/pass_builtin_commands.h"
 #include "../include/passes.h"
 #include "../include/command.h"
 #include "../include/error_list.h"
