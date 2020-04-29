@@ -12,6 +12,9 @@ struct command_t
     char *input_file;
     char *output_file;
     char *error_output_file;
+    int fd_input_file;
+    int fd_output_file;
+    int fd_error_output_file;
     output_type_t output_type;
     output_type_t error_output_type;
 };

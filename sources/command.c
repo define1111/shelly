@@ -95,6 +95,9 @@ get_command(token_t **conv, unsigned int conv_number)
     command->input_file = NULL;
     command->output_file = NULL;
     command->error_output_file = NULL;
+    command->fd_input_file = -1;
+    command->fd_output_file = -1;
+    command->fd_error_output_file = -1;
     command->output_type = OUTPUT_TYPE_NONE;
     command->error_output_type = OUTPUT_TYPE_NONE;
 
