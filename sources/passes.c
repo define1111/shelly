@@ -80,6 +80,7 @@ run_passes()
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
+            commands[0]->builtin_command_type = detect_buitin_command_type(commands[0]);
             if (run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
             break;

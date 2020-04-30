@@ -91,6 +91,7 @@ get_command(token_t **conv, unsigned int conv_number)
         exit(ALLOC_ERR);
     }
 
+    command->builtin_command_type = BUILTIN_COMMAND_NONE;
     command->args = NULL;
     command->input_file = NULL;
     command->output_file = NULL;
