@@ -81,7 +81,8 @@ run_passes()
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
             commands[0]->builtin_command_type = detect_buitin_command_type(commands[0]);
-            if (run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
+            if (commands[0]->builtin_command_type != BUILTIN_COMMAND_NONE && \
+                run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
             break;
         case PASS_INIT_CONVEYOR:
@@ -102,7 +103,7 @@ run_passes()
         case PASS_EXECUTE_EXTERNAL_COMMAND:
             if (conveyor_length > 1)
             {
-                for (unsigned int i = 0; i < conveyor_length; ++i)
+                for (i = 0; i < conveyor_length; ++i)
                 {
                     if (i != conveyor_length - 1)
                         if (pipe(pipe_fd[i]) == -1)
@@ -187,13 +188,13 @@ run_passes()
                     }
                 }
 
-                for (unsigned int i = 0; i < conveyor_length - 1; ++i)
+                for (i = 0; i < conveyor_length - 1; ++i)
                 {
                     close(pipe_fd[i][0]);
                     close(pipe_fd[i][1]);
                 }
 
-                for (unsigned int i = 0; i < conveyor_length; ++i)
+                for (i = 0; i < conveyor_length; ++i)
                     waitpid(pid_arr[i], NULL, 0);
                 
             }
@@ -229,6 +230,17 @@ run_passes()
                 }
         
                 waitpid(process, NULL, 0);
+            }
+            break;
+        case PASS_CLOSE_FILES_FOR_CONVEYOR:
+            for (i = 0; i < conveyor_length; ++i)
+            {
+                if (commands[i]->fd_input_file != -1)
+                    close(commands[i]->fd_input_file);
+                if (commands[i]->fd_output_file != -1)
+                    close(commands[i]->fd_output_file);
+                if (commands[i]->fd_error_output_file != -1)
+                    close(commands[i]->fd_error_output_file);
             }
             break;
         case PASS_FREE_ALLOCS:
