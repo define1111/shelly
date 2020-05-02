@@ -1,6 +1,7 @@
 #ifndef SENTRY_COMMAND_H
 #define SENTRY_COMMAND_H
 
+#include <sys/types.h>
 #include "parser.h"
 
 enum builtin_command_type_t
@@ -19,6 +20,7 @@ typedef enum output_type_t output_type_t;
 struct command_t
 {
     builtin_command_type_t builtin_command_type;
+    pid_t pid;
     char **args;
     char *input_file;
     char *output_file;

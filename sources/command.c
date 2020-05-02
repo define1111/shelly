@@ -92,6 +92,7 @@ get_command(token_t **conv, unsigned int conv_number)
     }
 
     command->builtin_command_type = BUILTIN_COMMAND_NONE;
+    command->pid = -1;
     command->args = NULL;
     command->input_file = NULL;
     command->output_file = NULL;

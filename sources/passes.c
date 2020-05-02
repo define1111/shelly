@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include "../include/passes.h"
 #include "../include/parser.h"
@@ -22,16 +19,11 @@ run_passes()
     unsigned int conveyor_length = 0;
     unsigned int i;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
-    pid_t process = -1;
-    pid_t *pid_arr = NULL; /* he he */
 
-    for (passes_t current_pass = PASS_START; 1; ++current_pass)
+    for (passes_t current_pass = PASS_TOKENIZATION; 1; ++current_pass)
     {
         switch (current_pass)
         {
-        case PASS_START:
-        /* DESCRIPTION: useless pass, lol */
-            break;
         case PASS_TOKENIZATION:
         /* DESCRIPTION: this pass take pointer to list of tokens from stdin*/
             token_list_head = parse_step_1();
@@ -93,12 +85,6 @@ run_passes()
                 perror("malloc");
                 exit(ALLOC_ERR);
             }
-            pid_arr = malloc(conveyor_length * sizeof(pid_t));
-            if (pid_arr == NULL)
-            {
-                perror("malloc");
-                exit(ALLOC_ERR);
-            }
             break; 
         case PASS_EXECUTE_EXTERNAL_COMMAND:
             if (conveyor_length > 1)
@@ -112,14 +98,14 @@ run_passes()
                             exit(PIPE_ERR);
                         }
 
-                    pid_arr[i] = fork();
-                    if (pid_arr[i] == -1)
+                    commands[i]->pid = fork();
+                    if (commands[i]->pid == -1)
                     {
                         perror("fork");
                         exit(FORK_ERR);
                     }
                 
-                    if (pid_arr[i] == 0)
+                    if (commands[i]->pid == 0)
                     {
                         if (i == 0) /* first command */
                         {
@@ -195,19 +181,19 @@ run_passes()
                 }
 
                 for (i = 0; i < conveyor_length; ++i)
-                    waitpid(pid_arr[i], NULL, 0);
+                    waitpid(commands[i]->pid, NULL, 0);
                 
             }
             else
             {
-                process = fork();
-                if (process == -1)
+                commands[0]->pid = fork();
+                if (commands[0]->pid == -1)
                 {
                     perror("fork");
                     exit(FORK_ERR);
                 }   
 
-                if (process == 0)
+                if (commands[0]->pid == 0)
                 {
                     if (commands[0]->fd_input_file != -1) 
                     {
@@ -229,7 +215,7 @@ run_passes()
                     exit(EXEC_ERR);
                 }
         
-                waitpid(process, NULL, 0);
+                waitpid(commands[0]->pid, NULL, 0);
             }
             break;
         case PASS_CLOSE_FILES_FOR_CONVEYOR:
@@ -245,10 +231,7 @@ run_passes()
             break;
         case PASS_FREE_ALLOCS:
             if (conveyor_length > 1) 
-            {
-                free(pipe_fd);
-                free(pid_arr);
-            }
+                free(pipe_fd); 
             free_conv(conveyor);
             free_commands(commands);
             break;
