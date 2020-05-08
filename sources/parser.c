@@ -43,12 +43,18 @@ push_tail_token(token_t *head, lex_t lex, char *value)
 token_t *
 parse_step_1()
 {
-    int ch = 0;
+    int ch = getchar();
     state_lex_t state = STATE_LOOP;
     char *value = NULL;
     int i = 0;
     token_t *head = NULL;
-    int is_read = 1;
+    int is_read = 0;
+
+    if (ch == EOF)
+    {
+        putchar('\n');
+        exit(SUCCESS_EXIT);
+    }
 
     while (1)
     {
