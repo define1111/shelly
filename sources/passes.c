@@ -14,10 +14,10 @@ pass_return_code_t
 run_passes()
 {
     token_t *token_list_head = NULL;
-    token_t **conveyor = NULL;
+    token_t **tokens_conveyor = NULL;
     command_t **commands = NULL;
     unsigned int conveyor_length = 0;
-    unsigned int i;
+    unsigned int i, j;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
 
     for (passes_t current_pass = PASS_TOKENIZATION; 1; ++current_pass)
@@ -35,8 +35,8 @@ run_passes()
         case PASS_SPLIT_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens
            separeted by | token and free this token */
-            conveyor = conv_parse(token_list_head);
-            if (conveyor == NULL) return PASS_RET_CONTINUE;
+            tokens_conveyor = conv_parse(token_list_head);
+            if (tokens_conveyor == NULL) return PASS_RET_CONTINUE;
             break;
         case PASS_GET_COMMANDS_FROM_CONVEYOR:
         /* DESCRIPTION: this pass take array of commands. Command_t - special struct for
@@ -45,7 +45,7 @@ run_passes()
            commands[0]: args = {"ls", "-al", NULL}, in = NULL, out = NULL
            commands[1]: args = {"grep", ".txt", NULL}, in = NULL, out = NULL
            commands[2]: args = {"sort", NULL}, in = NULL, out = "file.txt" */
-            conveyor_length = conv_len(conveyor);
+            conveyor_length = conv_len(tokens_conveyor);
             commands = (command_t**) malloc((conveyor_length + 1) * sizeof(command_t*));
             if (commands == NULL)
             {
@@ -54,7 +54,7 @@ run_passes()
             }
             for (i = 0; i < conveyor_length; ++i)
             {
-                commands[i] = get_command(conveyor, i);
+                commands[i] = get_command(tokens_conveyor, i);
                 if (commands[i] == NULL) 
                 {
                     free_commands(commands);
@@ -67,14 +67,14 @@ run_passes()
             /* DESCRIPTION: actually we need open only two files
                for conveyor: fd_in for first command and fd_out
                for last command and fd_err for all commands */
-            if (run_open_files(commands, conveyor, conveyor_length) == PASS_RET_CONTINUE)
+            if (run_open_files(commands, tokens_conveyor, conveyor_length) == PASS_RET_CONTINUE)
                 return PASS_RET_CONTINUE;
             break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
             commands[0]->builtin_command_type = detect_buitin_command_type(commands[0]);
             if (commands[0]->builtin_command_type != BUILTIN_COMMAND_NONE && \
-                run_builtin_commands(commands, conveyor, &current_pass) == PASS_RET_SUCCESS)
+                run_builtin_commands(commands, tokens_conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
             break;
         case PASS_INIT_CONVEYOR:
@@ -123,7 +123,7 @@ run_passes()
 
                             dup2(pipe_fd[i][1], STDOUT_FILENO);
 
-                            for (unsigned int j = 0; j < i; ++j)
+                            for (j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
                                 close(pipe_fd[j][1]);
@@ -145,7 +145,7 @@ run_passes()
 
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
 
-                            for (unsigned int j = 0; j < i; ++j)
+                            for (j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
                                 close(pipe_fd[j][1]);
@@ -162,7 +162,7 @@ run_passes()
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
                             dup2(pipe_fd[i][1], STDOUT_FILENO);
                             
-                            for (unsigned int j = 0; j < i; ++j)
+                            for (j = 0; j < i; ++j)
                             {
                                 close(pipe_fd[j][0]);
                                 close(pipe_fd[j][1]);
@@ -232,7 +232,7 @@ run_passes()
         case PASS_FREE_ALLOCS:
             if (conveyor_length > 1) 
                 free(pipe_fd); 
-            free_conv(conveyor);
+            free_conv(tokens_conveyor);
             free_commands(commands);
             break;
         case PASS_END:

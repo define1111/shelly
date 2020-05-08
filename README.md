@@ -8,6 +8,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * single and double quotes
 * redirect stream (stdin, stdout (rewrite/append), stderr (rewrite/append))
 * conveyor |
+* Ctrl + D
 
 ## Builtin commands:
 * cd
@@ -29,7 +30,6 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * "conveyor" ;
 * environment variables (and export)
 * Ctrl + C
-* Ctrl + D
 * history
 
 ## How to use it?
