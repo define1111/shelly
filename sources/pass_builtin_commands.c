@@ -50,6 +50,9 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
     int save_stderr = -1;
     pass_return_code_t return_code = PASS_RET_CONTINUE;
 
+    int i;
+    int command_arg = 0;
+
     if (commands[0]->fd_output_file != -1) 
     {
         save_stdout = dup(STDOUT_FILENO);
@@ -91,8 +94,8 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
         {
             if (commands[0]->args[2] != NULL)
             {
-                int num = atoi(commands[0]->args[2]);
-                for (int i = 0; i < num; ++i)
+                command_arg = atoi(commands[0]->args[2]);
+                for (i = 0; i < command_arg; ++i)
                     printf("mur ");
             }
         }

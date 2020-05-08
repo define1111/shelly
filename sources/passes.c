@@ -13,6 +13,7 @@
 pass_return_code_t 
 run_passes()
 {
+    passes_t current_pass;
     token_t *token_list_head = NULL;
     token_t **tokens_conveyor = NULL;
     command_t **commands = NULL;
@@ -20,7 +21,7 @@ run_passes()
     unsigned int i, j;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
 
-    for (passes_t current_pass = PASS_TOKENIZATION; 1; ++current_pass)
+    for (current_pass = PASS_TOKENIZATION; 1; ++current_pass)
     {
         switch (current_pass)
         {
@@ -30,7 +31,7 @@ run_passes()
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
             token_list_head = parse_step_2(token_list_head);
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
-            //print_token_list(token_list_head);
+            /* print_token_list(token_list_head); */
             break;
         case PASS_SPLIT_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens

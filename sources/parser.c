@@ -16,6 +16,7 @@ get_tail(token_t *head)
 static token_t *
 push_tail_token(token_t *head, lex_t lex, char *value)
 {
+    token_t *old_tail = NULL;
     token_t *new_tail = (token_t *) malloc(sizeof(token_t));
     if (new_tail == NULL)
     {
@@ -33,7 +34,7 @@ push_tail_token(token_t *head, lex_t lex, char *value)
         return new_tail;
     }
 
-    token_t *old_tail = get_tail(head);
+    old_tail = get_tail(head);
     old_tail->next = new_tail;
     new_tail->prev = old_tail;
 

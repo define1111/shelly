@@ -84,6 +84,9 @@ free_conv(token_t **conv)
 command_t *
 get_command(token_t **conv, unsigned int conv_number)
 {
+    token_t *iter = NULL;
+    unsigned int i = 0;
+
     command_t *command = (command_t*) malloc(sizeof(command_t));
     if (command == NULL)
     {
@@ -102,9 +105,6 @@ get_command(token_t **conv, unsigned int conv_number)
     command->fd_error_output_file = -1;
     command->output_type = OUTPUT_TYPE_NONE;
     command->error_output_type = OUTPUT_TYPE_NONE;
-
-    token_t *iter = NULL;
-    unsigned int i = 0;
 
     for (iter = conv[conv_number]; iter; iter = iter->next)
     {
