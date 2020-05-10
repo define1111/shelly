@@ -4,6 +4,7 @@
 #include <fcntl.h>
 
 #include "../include/pass_open_files.h"
+#include "../include/conveyor.h"
 
 pass_return_code_t
 run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_length)

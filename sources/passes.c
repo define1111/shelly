@@ -6,6 +6,7 @@
 #include "../include/passes.h"
 #include "../include/parser.h"
 #include "../include/command.h"
+#include "../include/conveyor.h"
 #include "../include/error_list.h"
 #include "../include/pass_builtin_commands.h"
 #include "../include/pass_open_files.h"
@@ -14,9 +15,9 @@ pass_return_code_t
 run_passes()
 {
     passes_t current_pass;
-    token_t *token_list_head = NULL;
-    token_t **tokens_conveyor = NULL;
-    command_t **commands = NULL;
+    token_t *token_list_head = NULL; /* list of all tokens */
+    token_t **tokens_conveyor = NULL; /* array of lists of tokens separeted by | */
+    command_t **commands = NULL; /* array of comamnds */
     unsigned int conveyor_length = 0;
     unsigned int i, j;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
@@ -26,27 +27,36 @@ run_passes()
         switch (current_pass)
         {
         case PASS_TOKENIZATION:
-        /* DESCRIPTION: this pass take pointer to list of tokens from stdin*/
+        /* DESCRIPTION: this pass take list of all tokens from stdin*/
             token_list_head = parse_step_1();
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
             token_list_head = parse_step_2(token_list_head);
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
             /* print_token_list(token_list_head); */
             break;
-        case PASS_SPLIT_CONVEYOR:
+        case PASS_SPLIT_TOKENS_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens
            separeted by | token and free this token */
             tokens_conveyor = conv_parse(token_list_head);
             if (tokens_conveyor == NULL) return PASS_RET_CONTINUE;
             break;
-        case PASS_GET_COMMANDS_FROM_CONVEYOR:
+        case PASS_INIT_CONVEYOR:
+            conveyor_length = conv_len(tokens_conveyor);
+            if (conveyor_length <= 1) break;
+            pipe_fd = malloc(2 * (conveyor_length - 1) * sizeof(int));
+            if (pipe_fd == NULL)
+            {
+                perror("malloc");
+                exit(ALLOC_ERR);
+            }
+            break; 
+        case PASS_GET_COMMANDS_FROM_TOKENS_CONVEYOR:
         /* DESCRIPTION: this pass take array of commands. Command_t - special struct for
            easy access to args, files. For example:
            $ ls -al | grep .txt | sort > file.txt interpreted as:
            commands[0]: args = {"ls", "-al", NULL}, in = NULL, out = NULL
            commands[1]: args = {"grep", ".txt", NULL}, in = NULL, out = NULL
            commands[2]: args = {"sort", NULL}, in = NULL, out = "file.txt" */
-            conveyor_length = conv_len(tokens_conveyor);
             commands = (command_t**) malloc((conveyor_length + 1) * sizeof(command_t*));
             if (commands == NULL)
             {
@@ -78,15 +88,6 @@ run_passes()
                 run_builtin_commands(commands, tokens_conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
             break;
-        case PASS_INIT_CONVEYOR:
-            if (conveyor_length <= 1) break;
-            pipe_fd = malloc(2 * (conveyor_length - 1) * sizeof(int));
-            if (pipe_fd == NULL)
-            {
-                perror("malloc");
-                exit(ALLOC_ERR);
-            }
-            break; 
         case PASS_EXECUTE_EXTERNAL_COMMAND:
             if (conveyor_length > 1)
             {

@@ -5,6 +5,7 @@
 #include "../include/pass_builtin_commands.h"
 #include "../include/passes.h"
 #include "../include/command.h"
+#include "../include/conveyor.h"
 #include "../include/error_list.h"
 #include "../include/shelly_string.h"
 
