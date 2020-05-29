@@ -3,6 +3,7 @@
 
 #include "../include/parser.h"
 #include "../include/command.h"
+#include "../include/conveyor.h"
 #include "../include/error_list.h"
 
 command_t *
