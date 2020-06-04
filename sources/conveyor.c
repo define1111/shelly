@@ -61,7 +61,7 @@ conv_parse(token_t *token_list_head)
 }
 
 unsigned int
-conv_len(token_t **conv)
+get_conveyor_length_from_tokens(token_t **conv)
 {
     unsigned int i;
 

@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "builtin_commands.h": "c",
+        "command.h": "c",
+        "parser.h": "c",
+        "error_list.h": "c"
+    }
+}

@@ -7,8 +7,10 @@
 #include "../include/conveyor.h"
 
 pass_return_code_t
-run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_length)
+run_open_files(conveyor_t *conveyor, token_t **tokens_conveyor)
 {
+    command_t **commands = conveyor->commands;
+    unsigned int conveyor_length = conveyor->length;
     unsigned int j;
 
     if (commands[0]->input_file != NULL)
@@ -17,7 +19,7 @@ run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_lengt
         if (commands[0]->fd_input_file == -1)
         {
             printf("open error: can't open file %s\n", commands[0]->input_file);
-            free_conv(conv);
+            free_conv(tokens_conveyor);
             free_commands(commands);
             return PASS_RET_CONTINUE;
         }
@@ -30,7 +32,7 @@ run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_lengt
             if (commands[j]->fd_error_output_file == -1)
             {
                 printf("open error: can't open file %s\n", commands[j]->error_output_file);
-                free_conv(conv);
+                free_conv(tokens_conveyor);
                 free_commands(commands);
                 return PASS_RET_CONTINUE;
             }
@@ -41,7 +43,7 @@ run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_lengt
             if (commands[j]->fd_error_output_file == -1)
             {
                 printf("open error: can't open file %s\n", commands[j]->error_output_file);
-                free_conv(conv);
+                free_conv(tokens_conveyor);
                 free_commands(commands);
                 return PASS_RET_CONTINUE;
             }
@@ -53,7 +55,7 @@ run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_lengt
         if (commands[conveyor_length - 1]->fd_output_file == -1)
         {
             printf("open error: can't open file %s\n", commands[conveyor_length - 1]->output_file);
-            free_conv(conv);
+            free_conv(tokens_conveyor);
             free_commands(commands);
             return PASS_RET_CONTINUE;
         }
@@ -64,7 +66,7 @@ run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_lengt
         if (commands[conveyor_length - 1]->fd_output_file == -1)
         {
             printf("open error: can't open file %s\n", commands[conveyor_length - 1]->output_file);
-            free_conv(conv);
+            free_conv(tokens_conveyor);
             free_commands(commands);
             return PASS_RET_CONTINUE;
         }

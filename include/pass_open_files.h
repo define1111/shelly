@@ -2,8 +2,8 @@
 #define SENTRY_PASS_OPEN_FILES_H
 
 #include "passes.h"
-#include "command.h"
+#include "conveyor.h"
 
-pass_return_code_t run_open_files(command_t **commands, token_t **conv, unsigned int conveyor_length);
+pass_return_code_t run_open_files(conveyor_t *conveyor, token_t **tokens_conveyor);
 
 #endif
