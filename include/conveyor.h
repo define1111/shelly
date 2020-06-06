@@ -15,6 +15,7 @@ typedef struct conveyor_t conveyor_t;
 token_t **tokens_conveyor_parse(token_t *token_list_head);
 void free_tokens_conveyor(token_t **tokens_conveyor);
 unsigned int get_conveyor_length_from_tokens(token_t **tokens_conveyor);
-pass_return_code_t run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor);
+void run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor);
+void free_conveyor(conveyor_t *conveyor);
 
 #endif

@@ -44,33 +44,31 @@ detect_buitin_command_type(command_t *command)
     return builtin_command_type;
 }
 
-pass_return_code_t 
-run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pass)
+void
+run_builtin_commands(conveyor_t *conveyor, unsigned int num, token_t **tokens_conveyor)
 {
     int save_stdout = -1;
     int save_stderr = -1;
-    pass_return_code_t return_code = PASS_RET_CONTINUE;
 
     int i;
     int command_arg = 0;
 
-    if (commands[0]->fd_output_file != -1) 
+    if (conveyor->commands[num]->fd_output_file != -1) 
     {
         save_stdout = dup(STDOUT_FILENO);
-        dup2(commands[0]->fd_output_file, STDOUT_FILENO);
-        close(commands[0]->fd_output_file);
+        dup2(conveyor->commands[num]->fd_output_file, STDOUT_FILENO);
+        close(conveyor->commands[num]->fd_output_file);
     }
-    if (commands[0]->fd_error_output_file != -1)
+    if (conveyor->commands[num]->fd_error_output_file != -1)
     {
         save_stderr = dup(STDERR_FILENO);
-        dup2(commands[0]->fd_error_output_file, STDERR_FILENO);
-        close(commands[0]->fd_error_output_file);
+        dup2(conveyor->commands[num]->fd_error_output_file, STDERR_FILENO);
+        close(conveyor->commands[num]->fd_error_output_file);
     }
 
-    switch (commands[0]->builtin_command_type)
+    switch (conveyor->commands[num]->builtin_command_type)
     {
     case BUILTIN_COMMAND_NONE:
-        return_code = PASS_RET_CONTINUE;
         break;
     case BUILTIN_COMMAND_CD:
         /* add it after env */
@@ -80,30 +78,26 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
         }*/
 
         /* temp */
-        if (commands[0]->args[1] == NULL)
+        if (conveyor->commands[num]->args[1] == NULL)
             printf("cd: no args\n");
-        if (chdir(commands[0]->args[1]) == -1)
+        if (chdir(conveyor->commands[num]->args[1]) == -1)
         {
             perror("chdir");
             exit(CHDIR_ERR);
         }
-        *current_pass = PASS_FREE_ALLOCS - 1;   
-        return_code = PASS_RET_CONTINUE;
         break;
     case BUILTIN_COMMAND_MUR:   
-        if (commands[0]->args[1] != NULL && string_compare(commands[0]->args[1], "-n") == 0)
+        if (conveyor->commands[num]->args[1] != NULL && string_compare(conveyor->commands[num]->args[1], "-n") == 0)
         {
-            if (commands[0]->args[2] != NULL)
+            if (conveyor->commands[num]->args[2] != NULL)
             {
-                command_arg = atoi(commands[0]->args[2]);
+                command_arg = atoi(conveyor->commands[num]->args[2]);
                 for (i = 0; i < command_arg; ++i)
                     printf("mur ");
             }
         }
         printf(":3\n");
-        *current_pass = PASS_FREE_ALLOCS - 1;
-        return_code = PASS_RET_CONTINUE;
-        break;
+        exit(SUCCESS_EXIT);
     case BUILTIN_COMMAND_HELP:
         printf("Shelly, version 0.7.1\n");
         printf("This is my simple command line interpreter for Linux. Im writing it for self-education purposes.\n");
@@ -116,14 +110,11 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
         printf("$ mur -n 3\n");
         printf("mur mur mur :3\n");
         printf("Support execute external commands with conveyor and redirect streams\n");
-        *current_pass = PASS_FREE_ALLOCS - 1;
-        return_code = PASS_RET_CONTINUE;
-        break;
+        exit(SUCCESS_EXIT);
     case BUILTIN_COMMAND_EXIT:
-        free_tokens_conveyor(conv);
-        free_commands(commands);
-        return_code = PASS_RET_SUCCESS;
-        break;
+        free_tokens_conveyor(tokens_conveyor);
+        free_conveyor(conveyor);
+        exit(SUCCESS_EXIT);
     }
 
     if (save_stdout != -1)
@@ -136,6 +127,4 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
         dup2(save_stderr, STDOUT_FILENO);
         close(save_stderr);
     }
-
-    return return_code;
 }

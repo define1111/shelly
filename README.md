@@ -5,6 +5,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * passes-style code
 * flexible parser that is easy to improve
 * abstraction command
+* abstraction conveyor
 * single and double quotes
 * redirect stream (stdin, stdout (rewrite/append), stderr (rewrite/append))
 * conveyor |
@@ -17,10 +18,7 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * exit
 
 ## Wish list:
-* abstraction conveyor
 * abstraction job
-* redirect stream for builtin commands
-* conveyors for builtin commands
 * bg, fg
 * regex (*, ?)
 * better promt
