@@ -19,7 +19,6 @@ run_passes()
     token_t **tokens_conveyor = NULL; /* array of lists of tokens separeted by | */
     conveyor_t *conveyors = NULL; /* array of conveyors */
     unsigned int i, j;
-    int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
 
     for (current_pass = PASS_TOKENIZATION; 1; ++current_pass)
     {
@@ -36,7 +35,7 @@ run_passes()
         case PASS_SPLIT_TOKENS_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens
            separeted by | token and free this token */
-            tokens_conveyor = conv_parse(token_list_head);
+            tokens_conveyor = tokens_conveyor_parse(token_list_head);
             if (tokens_conveyor == NULL) return PASS_RET_CONTINUE;
             break;
         case PASS_INIT_CONVEYOR:
@@ -48,8 +47,8 @@ run_passes()
             }
             conveyors->length = get_conveyor_length_from_tokens(tokens_conveyor);
             if (conveyors->length <= 1) break;
-            pipe_fd = malloc(2 * (conveyors->length - 1) * sizeof(int));
-            if (pipe_fd == NULL)
+            conveyors->pipe_fd = malloc(2 * (conveyors->length - 1) * sizeof(int));
+            if (conveyors->pipe_fd == NULL)
             {
                 perror("malloc");
                 exit(ALLOC_ERR);
@@ -86,10 +85,17 @@ run_passes()
             if (run_open_files(conveyors, tokens_conveyor) == PASS_RET_CONTINUE)
                 return PASS_RET_CONTINUE;
             break;
+        case PASS_DETECT_BUILTIN_COMMANDS:
+            /* DESCRIPTION: before we can run conveyor we have to
+               detect type of all commands: is it builtin or not? */
+            for (i = 0; i < conveyors->length; ++i)
+                conveyors->commands[i]->builtin_command_type = detect_buitin_command_type(conveyors->commands[i]);  
+            break;   
         case PASS_EXECUTE_CONVEYOR:
+            /* empty */
+            break;
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
-            conveyors->commands[0]->builtin_command_type = detect_buitin_command_type(conveyors->commands[0]);
             if (conveyors->commands[0]->builtin_command_type != BUILTIN_COMMAND_NONE && \
                 run_builtin_commands(conveyors->commands, tokens_conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
@@ -100,7 +106,7 @@ run_passes()
                 for (i = 0; i < conveyors->length; ++i)
                 {
                     if (i != conveyors->length - 1)
-                        if (pipe(pipe_fd[i]) == -1)
+                        if (pipe(conveyors->pipe_fd[i]) == -1)
                         {
                             perror("pipe");
                             exit(PIPE_ERR);
@@ -129,12 +135,12 @@ run_passes()
                                 close(conveyors->commands[i]->fd_error_output_file);
                             }
 
-                            dup2(pipe_fd[i][1], STDOUT_FILENO);
+                            dup2(conveyors->pipe_fd[i][1], STDOUT_FILENO);
 
                             for (j = 0; j < i; ++j)
                             {
-                                close(pipe_fd[j][0]);
-                                close(pipe_fd[j][1]);
+                                close(conveyors->pipe_fd[j][0]);
+                                close(conveyors->pipe_fd[j][1]);
                             }
                         }
                         else if (i == conveyors->length - 1) /* last command */
@@ -151,12 +157,12 @@ run_passes()
                                 close(conveyors->commands[i]->fd_error_output_file);
                             }
 
-                            dup2(pipe_fd[i - 1][0], STDIN_FILENO);
+                            dup2(conveyors->pipe_fd[i - 1][0], STDIN_FILENO);
 
                             for (j = 0; j < i; ++j)
                             {
-                                close(pipe_fd[j][0]);
-                                close(pipe_fd[j][1]);
+                                close(conveyors->pipe_fd[j][0]);
+                                close(conveyors->pipe_fd[j][1]);
                             }
                         }
                         else /* middle command */
@@ -167,13 +173,13 @@ run_passes()
                                 close(conveyors->commands[i]->fd_error_output_file);
                             }
 
-                            dup2(pipe_fd[i - 1][0], STDIN_FILENO);
-                            dup2(pipe_fd[i][1], STDOUT_FILENO);
+                            dup2(conveyors->pipe_fd[i - 1][0], STDIN_FILENO);
+                            dup2(conveyors->pipe_fd[i][1], STDOUT_FILENO);
                             
                             for (j = 0; j < i; ++j)
                             {
-                                close(pipe_fd[j][0]);
-                                close(pipe_fd[j][1]);
+                                close(conveyors->pipe_fd[j][0]);
+                                close(conveyors->pipe_fd[j][1]);
                             }
                         }
                         execvp(conveyors->commands[i]->args[0], conveyors->commands[i]->args);
@@ -184,8 +190,8 @@ run_passes()
 
                 for (i = 0; i < conveyors->length - 1; ++i)
                 {
-                    close(pipe_fd[i][0]);
-                    close(pipe_fd[i][1]);
+                    close(conveyors->pipe_fd[i][0]);
+                    close(conveyors->pipe_fd[i][1]);
                 }
 
                 for (i = 0; i < conveyors->length; ++i)
@@ -239,7 +245,7 @@ run_passes()
             break;
         case PASS_FREE_ALLOCS:
             if (conveyors->length > 1) 
-                free(pipe_fd); 
+                free(conveyors->pipe_fd); 
             free_tokens_conveyor(tokens_conveyor);
             free_commands(conveyors->commands);
             free(conveyors);

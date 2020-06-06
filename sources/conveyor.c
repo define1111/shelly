@@ -7,27 +7,27 @@
 #include "../include/error_list.h"
 
 token_t **
-conv_parse(token_t *token_list_head)
+tokens_conveyor_parse(token_t *token_list_head)
 {
     token_t *iter = NULL;
-    token_t **conv = NULL; 
+    token_t **tokens_conveyor = NULL; 
     unsigned int i = 1;
 
-    conv = (token_t**) malloc(sizeof(token_t*));
-    if (conv == NULL)
+    tokens_conveyor = (token_t**) malloc(sizeof(token_t*));
+    if (tokens_conveyor == NULL)
     {
         perror("malloc");
         exit(ALLOC_ERR);
     }
 
-    conv[0] = token_list_head;
+    tokens_conveyor[0] = token_list_head;
 
     for (iter = token_list_head; iter; iter = iter->next)
     {
         if (iter->lex == LEX_CONV)
         {
-            conv = (token_t**) realloc(conv, ++i * sizeof(token_t*));
-            if (conv == NULL)
+            tokens_conveyor = (token_t**) realloc(tokens_conveyor, ++i * sizeof(token_t*));
+            if (tokens_conveyor == NULL)
             {
                 perror("realloc");
                 exit(ALLOC_ERR);
@@ -36,28 +36,28 @@ conv_parse(token_t *token_list_head)
             if (iter->next == NULL || iter->next->lex != LEX_ID)
             {
                 printf("syntax error: command after | expected\n");
-                conv[i - 1] = NULL;
-                free_tokens_conveyor(conv);
+                tokens_conveyor[i - 1] = NULL;
+                free_tokens_conveyor(tokens_conveyor);
                 return NULL;
             }
 
             iter->prev->next = NULL;
-            conv[i - 1] = iter->next;
+            tokens_conveyor[i - 1] = iter->next;
             iter->next->prev = NULL;
             free(iter);
-            iter = conv[i - 1];
+            iter = tokens_conveyor[i - 1];
         }
     }
 
-    conv = (token_t**) realloc(conv, ++i * sizeof(token_t*));
-    if (conv == NULL)
+    tokens_conveyor = (token_t**) realloc(tokens_conveyor, ++i * sizeof(token_t*));
+    if (tokens_conveyor == NULL)
     {
         perror("realloc");
         exit(ALLOC_ERR);
     }
-    conv[i - 1] = NULL;
+    tokens_conveyor[i - 1] = NULL;
 
-    return conv;
+    return tokens_conveyor;
 }
 
 unsigned int
@@ -80,4 +80,10 @@ free_tokens_conveyor(token_t **tokens_conveyor)
         free_token_list(&tokens_conveyor[i]);
 
     free(tokens_conveyor);
+}
+
+pass_return_code_t
+run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor)
+{
+
 }
