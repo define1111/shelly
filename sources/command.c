@@ -54,7 +54,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after > expected\n");
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -71,7 +71,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after >> expected\n");
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -87,7 +87,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: input file after < expected\n");
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -104,7 +104,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after 2> expected\n");
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -121,7 +121,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after 2>> expected\n");
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 free(command->args);
                 free(command);
                 return NULL;

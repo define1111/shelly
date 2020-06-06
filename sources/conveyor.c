@@ -37,7 +37,7 @@ conv_parse(token_t *token_list_head)
             {
                 printf("syntax error: command after | expected\n");
                 conv[i - 1] = NULL;
-                free_conv(conv);
+                free_tokens_conveyor(conv);
                 return NULL;
             }
 
@@ -61,23 +61,23 @@ conv_parse(token_t *token_list_head)
 }
 
 unsigned int
-get_conveyor_length_from_tokens(token_t **conv)
+get_conveyor_length_from_tokens(token_t **tokens_conveyor)
 {
     unsigned int i;
 
-    for (i = 0; conv[i] != NULL; ++i)
+    for (i = 0; tokens_conveyor[i] != NULL; ++i)
         ;
     
     return i;
 }
 
 void
-free_conv(token_t **conv)
+free_tokens_conveyor(token_t **tokens_conveyor)
 {
     unsigned int i;
     
-    for (i = 0; conv[i] != NULL; ++i)
-        free_token_list(&conv[i]);
+    for (i = 0; tokens_conveyor[i] != NULL; ++i)
+        free_token_list(&tokens_conveyor[i]);
 
-    free(conv);
+    free(tokens_conveyor);
 }

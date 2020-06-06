@@ -17,7 +17,6 @@ run_passes()
     passes_t current_pass;
     token_t *token_list_head = NULL; /* list of all tokens */
     token_t **tokens_conveyor = NULL; /* array of lists of tokens separeted by | */
-    command_t **commands = NULL; /* array of comamnds */
     conveyor_t *conveyors = NULL; /* array of conveyors */
     unsigned int i, j;
     int (*pipe_fd)[2]; /* array of pointers to pipe_fd[2] */
@@ -63,23 +62,22 @@ run_passes()
            commands[0]: args = {"ls", "-al", NULL}, in = NULL, out = NULL
            commands[1]: args = {"grep", ".txt", NULL}, in = NULL, out = NULL
            commands[2]: args = {"sort", NULL}, in = NULL, out = "file.txt" */
-            commands = (command_t**) malloc((conveyors->length + 1) * sizeof(command_t*));
-            if (commands == NULL)
+            conveyors->commands = (command_t**) malloc((conveyors->length + 1) * sizeof(command_t*));
+            if (conveyors->commands == NULL)
             {
                 perror("malloc");
                 exit(ALLOC_ERR);
             }
             for (i = 0; i < conveyors->length; ++i)
             {
-                commands[i] = get_command(tokens_conveyor, i);
-                if (commands[i] == NULL) 
+                conveyors->commands[i] = get_command(tokens_conveyor, i);
+                if (conveyors->commands[i] == NULL) 
                 {
-                    free_commands(commands);
+                    free_commands(conveyors->commands);
                     return PASS_RET_CONTINUE;
                 }
             }
-            commands[i] = NULL;
-            conveyors->commands = commands;
+            conveyors->commands[i] = NULL;
             break;
         case PASS_OPEN_FILES_FOR_CONVEYOR:
             /* DESCRIPTION: actually we need open only two files
@@ -88,11 +86,12 @@ run_passes()
             if (run_open_files(conveyors, tokens_conveyor) == PASS_RET_CONTINUE)
                 return PASS_RET_CONTINUE;
             break;
+        case PASS_EXECUTE_CONVEYOR:
         case PASS_EXECUTE_BUILTIN_COMMAND:
             /* DESCRIPTION: run builtin command */
-            commands[0]->builtin_command_type = detect_buitin_command_type(commands[0]);
-            if (commands[0]->builtin_command_type != BUILTIN_COMMAND_NONE && \
-                run_builtin_commands(commands, tokens_conveyor, &current_pass) == PASS_RET_SUCCESS)
+            conveyors->commands[0]->builtin_command_type = detect_buitin_command_type(conveyors->commands[0]);
+            if (conveyors->commands[0]->builtin_command_type != BUILTIN_COMMAND_NONE && \
+                run_builtin_commands(conveyors->commands, tokens_conveyor, &current_pass) == PASS_RET_SUCCESS)
                 return PASS_RET_SUCCESS;
             break;
         case PASS_EXECUTE_EXTERNAL_COMMAND:
@@ -107,27 +106,27 @@ run_passes()
                             exit(PIPE_ERR);
                         }
 
-                    commands[i]->pid = fork();
-                    if (commands[i]->pid == -1)
+                    conveyors->commands[i]->pid = fork();
+                    if (conveyors->commands[i]->pid == -1)
                     {
                         perror("fork");
                         exit(FORK_ERR);
                     }
                 
-                    if (commands[i]->pid == 0)
+                    if (conveyors->commands[i]->pid == 0)
                     {
                         if (i == 0) /* first command */
                         {
-                            if (commands[i]->fd_input_file != -1) 
+                            if (conveyors->commands[i]->fd_input_file != -1) 
                             {
-                                dup2(commands[i]->fd_input_file, STDIN_FILENO);
-                                close(commands[i]->fd_input_file);
+                                dup2(conveyors->commands[i]->fd_input_file, STDIN_FILENO);
+                                close(conveyors->commands[i]->fd_input_file);
                             }
 
-                            if (commands[i]->fd_error_output_file != -1)
+                            if (conveyors->commands[i]->fd_error_output_file != -1)
                             {
-                                dup2(commands[i]->fd_error_output_file, STDERR_FILENO);
-                                close(commands[i]->fd_error_output_file);
+                                dup2(conveyors->commands[i]->fd_error_output_file, STDERR_FILENO);
+                                close(conveyors->commands[i]->fd_error_output_file);
                             }
 
                             dup2(pipe_fd[i][1], STDOUT_FILENO);
@@ -140,16 +139,16 @@ run_passes()
                         }
                         else if (i == conveyors->length - 1) /* last command */
                         {
-                            if (commands[i]->fd_output_file != -1) 
+                            if (conveyors->commands[i]->fd_output_file != -1) 
                             {
-                                dup2(commands[i]->fd_output_file, STDOUT_FILENO);
-                                close(commands[i]->fd_output_file);
+                                dup2(conveyors->commands[i]->fd_output_file, STDOUT_FILENO);
+                                close(conveyors->commands[i]->fd_output_file);
                             }
 
-                            if (commands[i]->fd_error_output_file != -1)
+                            if (conveyors->commands[i]->fd_error_output_file != -1)
                             {
-                                dup2(commands[i]->fd_error_output_file, STDERR_FILENO);
-                                close(commands[i]->fd_error_output_file);
+                                dup2(conveyors->commands[i]->fd_error_output_file, STDERR_FILENO);
+                                close(conveyors->commands[i]->fd_error_output_file);
                             }
 
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
@@ -162,10 +161,10 @@ run_passes()
                         }
                         else /* middle command */
                         {
-                            if (commands[i]->fd_error_output_file != -1)
+                            if (conveyors->commands[i]->fd_error_output_file != -1)
                             {
-                                dup2(commands[i]->fd_error_output_file, STDERR_FILENO);
-                                close(commands[i]->fd_error_output_file);
+                                dup2(conveyors->commands[i]->fd_error_output_file, STDERR_FILENO);
+                                close(conveyors->commands[i]->fd_error_output_file);
                             }
 
                             dup2(pipe_fd[i - 1][0], STDIN_FILENO);
@@ -177,7 +176,7 @@ run_passes()
                                 close(pipe_fd[j][1]);
                             }
                         }
-                        execvp(commands[i]->args[0], commands[i]->args);
+                        execvp(conveyors->commands[i]->args[0], conveyors->commands[i]->args);
                         perror("exec");
                         exit(EXEC_ERR);
                     }
@@ -190,59 +189,59 @@ run_passes()
                 }
 
                 for (i = 0; i < conveyors->length; ++i)
-                    waitpid(commands[i]->pid, NULL, 0);
+                    waitpid(conveyors->commands[i]->pid, NULL, 0);
                 
             }
             else
             {
-                commands[0]->pid = fork();
-                if (commands[0]->pid == -1)
+                conveyors->commands[0]->pid = fork();
+                if (conveyors->commands[0]->pid == -1)
                 {
                     perror("fork");
                     exit(FORK_ERR);
                 }   
 
-                if (commands[0]->pid == 0)
+                if (conveyors->commands[0]->pid == 0)
                 {
-                    if (commands[0]->fd_input_file != -1) 
+                    if (conveyors->commands[0]->fd_input_file != -1) 
                     {
-                        dup2(commands[0]->fd_input_file, STDIN_FILENO);
-                        close(commands[0]->fd_input_file);
+                        dup2(conveyors->commands[0]->fd_input_file, STDIN_FILENO);
+                        close(conveyors->commands[0]->fd_input_file);
                     }
-                    if (commands[0]->fd_output_file != -1) 
+                    if (conveyors->commands[0]->fd_output_file != -1) 
                     {
-                        dup2(commands[0]->fd_output_file, STDOUT_FILENO);
-                        close(commands[0]->fd_output_file);
+                        dup2(conveyors->commands[0]->fd_output_file, STDOUT_FILENO);
+                        close(conveyors->commands[0]->fd_output_file);
                     }
-                    if (commands[0]->fd_error_output_file != -1)
+                    if (conveyors->commands[0]->fd_error_output_file != -1)
                     {
-                        dup2(commands[0]->fd_error_output_file, STDERR_FILENO);
-                        close(commands[0]->fd_error_output_file);
+                        dup2(conveyors->commands[0]->fd_error_output_file, STDERR_FILENO);
+                        close(conveyors->commands[0]->fd_error_output_file);
                     }
-                    execvp(commands[0]->args[0], commands[0]->args);
+                    execvp(conveyors->commands[0]->args[0], conveyors->commands[0]->args);
                     perror("exec");
                     exit(EXEC_ERR);
                 }
         
-                waitpid(commands[0]->pid, NULL, 0);
+                waitpid(conveyors->commands[0]->pid, NULL, 0);
             }
             break;
         case PASS_CLOSE_FILES_FOR_CONVEYOR:
             for (i = 0; i < conveyors->length; ++i)
             {
-                if (commands[i]->fd_input_file != -1)
-                    close(commands[i]->fd_input_file);
-                if (commands[i]->fd_output_file != -1)
-                    close(commands[i]->fd_output_file);
-                if (commands[i]->fd_error_output_file != -1)
-                    close(commands[i]->fd_error_output_file);
+                if (conveyors->commands[i]->fd_input_file != -1)
+                    close(conveyors->commands[i]->fd_input_file);
+                if (conveyors->commands[i]->fd_output_file != -1)
+                    close(conveyors->commands[i]->fd_output_file);
+                if (conveyors->commands[i]->fd_error_output_file != -1)
+                    close(conveyors->commands[i]->fd_error_output_file);
             }
             break;
         case PASS_FREE_ALLOCS:
             if (conveyors->length > 1) 
                 free(pipe_fd); 
-            free_conv(tokens_conveyor);
-            free_commands(commands);
+            free_tokens_conveyor(tokens_conveyor);
+            free_commands(conveyors->commands);
             free(conveyors);
             break;
         case PASS_END:

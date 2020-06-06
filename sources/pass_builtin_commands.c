@@ -120,7 +120,7 @@ run_builtin_commands(command_t **commands, token_t **conv, passes_t *current_pas
         return_code = PASS_RET_CONTINUE;
         break;
     case BUILTIN_COMMAND_EXIT:
-        free_conv(conv);
+        free_tokens_conveyor(conv);
         free_commands(commands);
         return_code = PASS_RET_SUCCESS;
         break;
