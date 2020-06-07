@@ -7,7 +7,7 @@
 #include "../include/error_list.h"
 
 command_t *
-get_command(token_t **conv, unsigned int conv_number)
+get_command(token_t **tokens_conveyor, unsigned int num)
 {
     token_t *iter = NULL;
     unsigned int i = 0;
@@ -31,7 +31,7 @@ get_command(token_t **conv, unsigned int conv_number)
     command->output_type = OUTPUT_TYPE_NONE;
     command->error_output_type = OUTPUT_TYPE_NONE;
 
-    for (iter = conv[conv_number]; iter; iter = iter->next)
+    for (iter = tokens_conveyor[num]; iter; iter = iter->next)
     {
         if (iter->lex == LEX_ID || iter->lex == LES_SINGLE_QUOTES || iter->lex == LEX_DOUBLE_QUOTES)
         {
@@ -54,7 +54,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after > expected\n");
-                free_tokens_conveyor(conv);
+                free_tokens_conveyor(tokens_conveyor);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -71,7 +71,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after >> expected\n");
-                free_tokens_conveyor(conv);
+                free_tokens_conveyor(tokens_conveyor);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -87,7 +87,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: input file after < expected\n");
-                free_tokens_conveyor(conv);
+                free_tokens_conveyor(tokens_conveyor);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -104,7 +104,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after 2> expected\n");
-                free_tokens_conveyor(conv);
+                free_tokens_conveyor(tokens_conveyor);
                 free(command->args);
                 free(command);
                 return NULL;
@@ -121,7 +121,7 @@ get_command(token_t **conv, unsigned int conv_number)
             else
             {
                 printf("syntax error: output file after 2>> expected\n");
-                free_tokens_conveyor(conv);
+                free_tokens_conveyor(tokens_conveyor);
                 free(command->args);
                 free(command);
                 return NULL;

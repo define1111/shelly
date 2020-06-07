@@ -7,8 +7,8 @@
 #include "../include/command.h"
 #include "../include/conveyor.h"
 #include "../include/error_list.h"
-#include "../include/pass_builtin_commands.h"
-#include "../include/pass_open_files.h"
+#include "../include/builtin_commands.h"
+#include "../include/open_files.h"
 
 pass_return_code_t 
 run_passes()

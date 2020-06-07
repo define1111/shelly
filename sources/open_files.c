@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "../include/pass_open_files.h"
+#include "../include/open_files.h"
 #include "../include/conveyor.h"
 
 pass_return_code_t

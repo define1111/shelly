@@ -1,5 +1,5 @@
-#ifndef SENTRY_PASSES_H
-#define SENTRY_PASSES_H
+#ifndef _SENTRY_PASSES_H
+#define _SENTRY_PASSES_H
 
 enum passes 
 { 

@@ -1,5 +1,5 @@
-#ifndef SENTRY_PARSER_H
-#define SENTRY_PARSER_H
+#ifndef _SENTRY_PARSER_H
+#define _SENTRY_PARSER_H
 
 enum lex_t 
 { 

@@ -1,5 +1,5 @@
-#ifndef SENTRY_COMMAND_H
-#define SENTRY_COMMAND_H
+#ifndef _SENTRY_COMMAND_H
+#define _SENTRY_COMMAND_H
 
 #include <sys/types.h>
 #include "parser.h"
@@ -33,7 +33,7 @@ struct command_t
 };
 typedef struct command_t command_t; 
 
-command_t *get_command(token_t **conv, unsigned int conv_number);
+command_t *get_command(token_t **tokens_conveyor, unsigned int num);
 void free_commands(command_t **commands);
 
 #endif

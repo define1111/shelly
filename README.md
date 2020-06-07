@@ -1,5 +1,5 @@
 # shelly
-This is my simple command line interpreter for Linux. Im writing it for self-education purposes.
+Shelly (Оболочечка) is my simple command line interpreter for Linux. Im writing it for self-education purposes.
 
 ## Features:
 * passes-style code
@@ -22,13 +22,12 @@ This is my simple command line interpreter for Linux. Im writing it for self-edu
 * bg, fg
 * regex (*, ?)
 * better promt
-* separete passes by functions (in process)
-* refract terrible code at conveyor and execute conveyor passes
 * "conveyor" &&
 * "conveyor" ;
 * environment variables (and export)
 * Ctrl + C
 * history
+* escaping characters
 
 ## How to use it?
 There is two version of programm: normal and instrumented with address-sanitizer.

@@ -1,5 +1,5 @@
-#ifndef SENTRY_PASS_OPEN_FILES_H
-#define SENTRY_PASS_OPEN_FILES_H
+#ifndef _SENTRY_OPEN_FILES_H
+#define _SENTRY_OPEN_FILES_H
 
 #include "passes.h"
 #include "conveyor.h"

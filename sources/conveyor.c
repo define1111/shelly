@@ -6,7 +6,7 @@
 #include "../include/conveyor.h"
 #include "../include/parser.h"
 #include "../include/command.h"
-#include "../include/pass_builtin_commands.h"
+#include "../include/builtin_commands.h"
 #include "../include/error_list.h"
 
 token_t **
@@ -202,9 +202,8 @@ run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor)
         close(conveyor->pipe_fd[i][1]);
     }
 
-    /*if (conveyor->length > 1)*/
-        for (i = 0; i < conveyor->length; ++i)
-            waitpid(conveyor->commands[i]->pid, NULL, 0);
+    for (i = 0; i < conveyor->length; ++i)
+        waitpid(conveyor->commands[i]->pid, NULL, 0);
 }
 
 void

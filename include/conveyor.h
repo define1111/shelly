@@ -1,5 +1,5 @@
-#ifndef SENTRY_CONVEYOR_H
-#define SENTRY_CONVEYOR_H
+#ifndef _SENTRY_CONVEYOR_H
+#define _SENTRY_CONVEYOR_H
 
 #include "command.h"
 #include "passes.h"
