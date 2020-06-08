@@ -8,6 +8,7 @@ enum lex_t
     LEX_MORE, /* > */ LEX_MOREMORE, /* >> */ LEX_TWO_MORE, /* 2> */ LEX_TWO_MOREMORE, /* 2>> */
     LEX_LESS, /* < */  
     LEX_AND, /* & */
+    LEX_BACKSLAH, /* \ */ LEX_SHARP, /* # */
     LEX_ANDAND, /* && */ LEX_CONV, /* | */ LEX_SEMICOLON, /* ; */
     LEX_REGEX_TEMPLATE /* * ? */
 };

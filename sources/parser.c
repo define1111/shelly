@@ -114,6 +114,18 @@ parse_step_1()
                 is_read = 1;
                 head = push_tail_token(head, LEX_SEMICOLON, NULL);
             }
+            else if (ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                head = push_tail_token(head, LEX_BACKSLAH, NULL);
+            }
+            else if (ch == '#')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                head = push_tail_token(head, LEX_SHARP, NULL);
+            }
             else
             {
                 state = STATE_IN_ID;
@@ -128,7 +140,8 @@ parse_step_1()
                 exit(ALLOC_ERR);
             }
             if (!(ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                  ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';'))
+                  ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';' || \
+                  ch == '#'))
             {
                 state = STATE_IN_ID;
                 if (ch == '\\') /* mb another one state of DFA for spaces and end token? */
@@ -155,7 +168,8 @@ parse_step_1()
                 value[i - 1] = (char) ch;
             }
             if (ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';')
+                ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';' || \
+                ch == '#')
             {
                 state = STATE_LOOP;
                 is_read = 0;
