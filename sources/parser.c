@@ -45,6 +45,7 @@ token_t *
 parse_step_1()
 {
     int ch = getchar();
+    int prev_ch = 0;
     state_lex_t state = STATE_LOOP;
     char *value = NULL;
     int i = 0;
@@ -59,7 +60,11 @@ parse_step_1()
 
     while (1)
     {
-        if (is_read) ch = getchar();
+        if (is_read) 
+        {
+            prev_ch = ch;
+            ch = getchar();
+        }
 
         switch (state)
         {
@@ -74,15 +79,35 @@ parse_step_1()
                 state = STATE_END;
                 is_read = 0;
             }
-            else if (ch == '"')
+            else if (ch == '"' && prev_ch != '\\')
             {
                 state = STATE_DOUBLE_QUOTES;
                 is_read = 1;
             }
-            else if (ch == '\'')
+            else if (ch == '"' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '"';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
+            else if (ch == '\'' && prev_ch != '\\')
             {
                 state = STATE_SINGLE_QUOTES;
                 is_read = 1;
+            }
+            else if (ch == '\'' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '\'';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
             }
             else if (ch == '>')
             {
@@ -186,13 +211,14 @@ parse_step_1()
                 perror("realloc");
                 exit(ALLOC_ERR);
             }
+
             if (ch != '"')
             {
                 state = STATE_DOUBLE_QUOTES;
                 is_read = 1;
                 value[i - 1] = (char) ch;
             }
-            if (ch == '"')
+            else if (ch == '"' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
@@ -201,7 +227,14 @@ parse_step_1()
                 value = NULL;
                 i = 0;
             }
-            if (ch == EOF || ch == '\n') /* mb another state for error ? */
+            else if (ch == '"' && prev_ch == '\\')
+            {
+                state = STATE_DOUBLE_QUOTES;
+                is_read = 1;
+                --i;
+                value[i - 1] = (char) ch;
+            }
+            else if (ch == EOF || ch == '\n') /* mb another state for error ? */
             {
                 printf("syntax error: close \" expected\n");
                 free(value);
@@ -216,22 +249,30 @@ parse_step_1()
                 perror("realloc");
                 exit(ALLOC_ERR);
             }
+
             if (ch != '\'')
             {
                 state = STATE_SINGLE_QUOTES;
                 is_read = 1;
                 value[i - 1] = (char) ch;
             }
-            if (ch == '\'')
+            else if (ch == '\'' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 value[i - 1] = '\0';
-                head = push_tail_token(head, LES_SINGLE_QUOTES, value);
+                head = push_tail_token(head, STATE_SINGLE_QUOTES, value);
                 value = NULL;
                 i = 0;
             }
-            if (ch == EOF || ch == '\n') /* mb another state for error ? */
+            else if (ch == '\'' && prev_ch == '\\')
+            {
+                state = STATE_SINGLE_QUOTES;
+                is_read = 1;
+                --i;
+                value[i - 1] = (char) ch;
+            }
+            else if (ch == EOF || ch == '\n') /* mb another state for error ? */
             {
                 printf("syntax error: close \' expected\n");
                 free(value);
