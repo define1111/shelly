@@ -10,6 +10,7 @@ Shelly (Оболочечка) is my simple command line interpreter for Linux. I
 * redirect stream (stdin, stdout (rewrite/append), stderr (rewrite/append))
 * conveyor |
 * Ctrl + D
+* comment #
 
 ## Builtin commands:
 * cd

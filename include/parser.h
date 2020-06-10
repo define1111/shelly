@@ -26,6 +26,7 @@ enum state_lex_t { STATE_LOOP = 0, STATE_IN_ID, STATE_SINGLE_QUOTES, STATE_DOUBL
 typedef enum state_lex_t state_lex_t;
 
 token_t *parse_step_1(void);
+token_t *delete_comment_tokens(token_t *token_list_head);
 token_t *parse_step_2(token_t *token_list_head);
 void free_token_list(token_t **head);
 /*void print_token_list(token_t *head);*/

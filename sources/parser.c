@@ -14,6 +14,16 @@ get_tail(token_t *head)
 }
 
 static token_t *
+get_sharp(token_t *head)
+{
+    for (; head; head = head->next)
+        if (head->lex == LEX_SHARP)
+            return head;
+
+    return NULL;
+}
+
+static token_t *
 push_tail_token(token_t *head, lex_t lex, char *value)
 {
     token_t *old_tail = NULL;
@@ -287,10 +297,29 @@ parse_step_1()
 }
 
 token_t *
+delete_comment_tokens(token_t *token_list_head)
+{
+    token_t *tmp = NULL, *iter = NULL;
+    token_t *sharp_token = get_sharp(token_list_head);
+
+    if (sharp_token != NULL)
+    {
+        sharp_token->prev->next = NULL;
+        for (iter = sharp_token; iter; iter = tmp)
+        {
+            tmp = iter->next;
+            if (iter->value != NULL) free(iter->value);
+            free(iter);
+        }
+    }
+    
+    return token_list_head;
+}
+
+token_t *
 parse_step_2(token_t *token_list_head)
 {
-    token_t *iter = NULL;
-    token_t *tmp = NULL;
+    token_t *tmp = NULL, *iter = NULL;
 
     for (iter = token_list_head; iter; iter = iter->next)
     {

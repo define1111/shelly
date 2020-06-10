@@ -27,9 +27,10 @@ run_passes()
         /* DESCRIPTION: this pass take list of all tokens from stdin*/
             token_list_head = parse_step_1();
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
+            token_list_head = delete_comment_tokens(token_list_head);      
             token_list_head = parse_step_2(token_list_head);
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
-            /* print_token_list(token_list_head); */
+            /*print_token_list(token_list_head);*/
             break;
         case PASS_SPLIT_TOKENS_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens
