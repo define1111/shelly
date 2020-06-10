@@ -131,35 +131,85 @@ parse_step_1()
                 is_read = 1;
                 head = push_tail_token(head, LEX_LESS, NULL);
             }
-            else if (ch == '&')
+            else if (ch == '&' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 head = push_tail_token(head, LEX_AND, NULL);
             }
-            else if (ch == '|')
+            else if (ch == '&' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '&';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
+            else if (ch == '|' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 head = push_tail_token(head, LEX_CONV, NULL);
             }
-            else if (ch == ';')
+            else if (ch == '|' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '|';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
+            else if (ch == ';' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 head = push_tail_token(head, LEX_SEMICOLON, NULL);
             }
-            else if (ch == '\\')
+            else if (ch == ';' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = ';';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
+            else if (ch == '\\' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 head = push_tail_token(head, LEX_BACKSLAH, NULL);
             }
-            else if (ch == '#')
+            else if (ch == '\\' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '\\';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
+            else if (ch == '#' && prev_ch != '\\')
             {
                 state = STATE_LOOP;
                 is_read = 1;
                 head = push_tail_token(head, LEX_SHARP, NULL);
+            }
+            else if (ch == '#' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '#';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
             }
             else
             {
@@ -271,7 +321,7 @@ parse_step_1()
                 state = STATE_LOOP;
                 is_read = 1;
                 value[i - 1] = '\0';
-                head = push_tail_token(head, STATE_SINGLE_QUOTES, value);
+                head = push_tail_token(head, LEX_SINGLE_QUOTES, value);
                 value = NULL;
                 i = 0;
             }

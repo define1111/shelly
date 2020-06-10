@@ -11,6 +11,7 @@ Shelly (Оболочечка) is my simple command line interpreter for Linux. I
 * conveyor |
 * Ctrl + D
 * comment #
+* escaping characters
 
 ## Builtin commands:
 * cd
@@ -28,7 +29,6 @@ Shelly (Оболочечка) is my simple command line interpreter for Linux. I
 * environment variables (and export)
 * Ctrl + C
 * history
-* escaping characters
 
 ## How to use it?
 There is two version of programm: normal and instrumented with address-sanitizer.

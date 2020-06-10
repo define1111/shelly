@@ -4,7 +4,7 @@
 enum lex_t 
 { 
     LEX_NONE = 0, LEX_ID, /* identifier */
-    LES_SINGLE_QUOTES, /* ' */ LEX_DOUBLE_QUOTES, /* " */
+    LEX_SINGLE_QUOTES, /* ' */ LEX_DOUBLE_QUOTES, /* " */
     LEX_MORE, /* > */ LEX_MOREMORE, /* >> */ LEX_TWO_MORE, /* 2> */ LEX_TWO_MOREMORE, /* 2>> */
     LEX_LESS, /* < */  
     LEX_AND, /* & */
