@@ -1,14 +1,5 @@
 #include "../include/shelly_string.h"
 
-/*int
-string_search_symbol(const char *str, char ch)
-{
-    while (*str++)
-        if (*str == ch)
-            return 1;
-    return 0;
-}*/
-
 int
 string_search_2_symbols(const char *str, char ch1, char ch2) /* mb va_arg ? */
 {

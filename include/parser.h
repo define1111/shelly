@@ -10,6 +10,7 @@ enum lex_t
     LEX_AND, /* & */
     LEX_BACKSLAH, /* \ */ LEX_SHARP, /* # */
     LEX_ANDAND, /* && */ LEX_CONV, /* | */ LEX_SEMICOLON, /* ; */
+    LEX_ENVIRONMENT_VARIABLE, /* ${VAR} */
     LEX_REGEX_TEMPLATE /* * ? */
 };
 typedef enum lex_t lex_t;

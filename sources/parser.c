@@ -368,6 +368,35 @@ delete_comment_tokens(token_t *token_list_head)
     return token_list_head;
 }
 
+static int
+is_environment_variable(const char *value)
+{
+    int value_length = string_length(value);
+
+    if (value_length >= 4 && value[0] == '$' && \
+        value[1] == '{' && value[value_length - 1] == '}')
+        return 1;
+
+    return 0;
+}
+
+static char *
+get_environment_variable_value(char *value)
+{
+    int value_length = string_length(value);
+    int i;
+
+    for (i = 0; i < value_length - 1; ++i)
+        value[i] = value[i + 1];
+
+    for (i = 0; i < value_length - 2; ++i)
+        value[i] = value[i + 1];
+
+    value[value_length - 3] = '\0';
+
+    return value;
+}
+
 token_t *
 parse_step_2(token_t *token_list_head)
 {
@@ -379,6 +408,11 @@ parse_step_2(token_t *token_list_head)
         {
             if (string_search_2_symbols(iter->value, '?', '*'))
                 iter->lex = LEX_REGEX_TEMPLATE;
+            else if (is_environment_variable(iter->value))
+            {
+                iter->lex = LEX_ENVIRONMENT_VARIABLE;
+                iter->value = get_environment_variable_value(iter->value);
+            }
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
                      iter->next != NULL && iter->next->lex == LEX_MORE)
             {
