@@ -294,7 +294,8 @@ parse_step_1()
                 --i;
                 value[i - 1] = (char) ch;
             }
-            else if (ch == EOF || ch == '\n') /* mb another state for error ? */
+
+            if (ch == EOF || ch == '\n') /* mb another state for error ? */
             {
                 printf("syntax error: close \" expected\n");
                 free(value);
@@ -332,7 +333,8 @@ parse_step_1()
                 --i;
                 value[i - 1] = (char) ch;
             }
-            else if (ch == EOF || ch == '\n') /* mb another state for error ? */
+            
+            if (ch == EOF || ch == '\n') /* mb another state for error ? */
             {
                 printf("syntax error: close \' expected\n");
                 free(value);
