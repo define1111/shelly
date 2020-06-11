@@ -33,7 +33,7 @@ get_command(token_t **tokens_conveyor, unsigned int num)
 
     for (iter = tokens_conveyor[num]; iter; iter = iter->next)
     {
-        if (iter->lex == LEX_ID || iter->lex == LES_SINGLE_QUOTES || iter->lex == LEX_DOUBLE_QUOTES)
+        if (iter->lex == LEX_ID || iter->lex == LEX_SINGLE_QUOTES || iter->lex == LEX_DOUBLE_QUOTES)
         {
             command->args = (char**) realloc(command->args, (i + 1) * sizeof(char*));
             if (command->args == NULL)
