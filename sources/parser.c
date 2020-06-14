@@ -408,9 +408,10 @@ parse_step_2(token_t *token_list_head)
         {
             if (string_search_2_symbols(iter->value, '?', '*'))
                 iter->lex = LEX_REGEX_TEMPLATE;
-            else if (is_environment_variable(iter->value))
+            else if (iter-> prev != NULL && iter->prev->lex != LEX_BACKSLAH && \
+                     is_environment_variable(iter->value))
             {
-                iter->lex = LEX_ENVIRONMENT_VARIABLE;
+                /*iter->lex = LEX_ENVIRONMENT_VARIABLE;*/
                 iter->value = get_environment_variable_value(iter->value);
             }
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
