@@ -14,10 +14,10 @@ get_tail(token_t *head)
 }
 
 static token_t *
-get_sharp(token_t *head)
+get_token_by_lex(token_t *head, lex_t lex)
 {
     for (; head; head = head->next)
-        if (head->lex == LEX_SHARP)
+        if (head->lex == lex)
             return head;
 
     return NULL;
@@ -352,7 +352,7 @@ token_t *
 delete_comment_tokens(token_t *token_list_head)
 {
     token_t *tmp = NULL, *iter = NULL;
-    token_t *sharp_token = get_sharp(token_list_head);
+    token_t *sharp_token = get_token_by_lex(token_list_head, LEX_SHARP);
 
     if (sharp_token != NULL)
     {
@@ -373,14 +373,21 @@ is_environment_variable(const char *value)
 {
     int value_length = string_length(value);
 
-    if (value_length >= 4 && value[0] == '$' && \
-        value[1] == '{' && value[value_length - 1] == '}')
-        return 1;
+    if (value_length == 2)
+    {
+        if (value[0] == '$' && (value[1] == '?' || (value[1] >= '0' && value[1] <= '9')))
+            return 1;
+    }
+    else if (value_length >= 4) 
+    {
+        if (value[0] == '$' && value[1] == '{' && value[value_length - 1] == '}')
+            return 1;
+    }
 
     return 0;
 }
 
-static char *
+/*static char *
 get_environment_variable_value(char *value)
 {
     int value_length = string_length(value);
@@ -395,7 +402,7 @@ get_environment_variable_value(char *value)
     value[value_length - 3] = '\0';
 
     return value;
-}
+}*/
 
 token_t *
 parse_step_2(token_t *token_list_head)
@@ -411,8 +418,8 @@ parse_step_2(token_t *token_list_head)
             else if (iter-> prev != NULL && iter->prev->lex != LEX_BACKSLAH && \
                      is_environment_variable(iter->value))
             {
-                /*iter->lex = LEX_ENVIRONMENT_VARIABLE;*/
-                iter->value = get_environment_variable_value(iter->value);
+                iter->lex = LEX_ENVIRONMENT_VARIABLE;
+                /*iter->value = get_environment_variable_value(iter->value);*/
             }
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
                      iter->next != NULL && iter->next->lex == LEX_MORE)
