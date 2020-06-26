@@ -211,13 +211,28 @@ parse_step_1()
                 head = push_tail_token(head, LEX_ID, value);
                 value = NULL;
             }
+            else if (ch == '$' && prev_ch != '\\')
+            {
+                state = STATE_ENVIRONMENT_VARIABLE_STAGE_1;
+                is_read = 1;
+            }
+            else if (ch == '$' && prev_ch == '\\')
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value = (char*) malloc(2 * sizeof(char));
+                value[0] = '$';
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+            }
             else
             {
-                state = STATE_IN_ID;
+                state = STATE_ID;
                 is_read = 0;
             }
             break;
-        case STATE_IN_ID:
+        case STATE_ID:
             value = (char*) realloc(value, ++i * sizeof(char));
             if (value == NULL)
             {
@@ -228,7 +243,7 @@ parse_step_1()
                   ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';' || \
                   ch == '#'))
             {
-                state = STATE_IN_ID;
+                state = STATE_ID;
                 if (ch == '\\') /* mb another one state of DFA for spaces and end token? */
                 {
                     ch = getchar();
@@ -342,6 +357,46 @@ parse_step_1()
                 return NULL;
             }
             break;
+        case STATE_ENVIRONMENT_VARIABLE_STAGE_1:
+            value = (char*) realloc(value, ++i * sizeof(char));
+            if (value == NULL)
+            {
+                perror("realloc");
+                exit(ALLOC_ERR);
+            }
+
+            value[i - 1] = (char) ch;
+
+            if (ch == '#' || ch == '?' || (ch >= '0' && ch <= '9'))
+            {
+                state = STATE_LOOP;
+                is_read = 1;
+                value[i] = '\0';
+                head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
+                value = NULL;
+                i = 0;
+            }
+            
+            /*if (!(ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
+                  ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';'))
+            {
+                state = STATE_ENVIRONMENT_VARIABLE_STAGE_1;
+                is_read = 1;
+                value[i - 1] = (char) ch;
+            }
+            if (ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
+                ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';')
+            {
+                state = STATE_LOOP;
+                is_read = 0;
+                value[i - 1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+                i = 0;
+            }*/
+            break;
+        case STATE_ENVIRONMENT_VARIABLE_STAGE_2:
+            break;
         case STATE_END:
             return head;
         }
@@ -368,7 +423,7 @@ delete_comment_tokens(token_t *token_list_head)
     return token_list_head;
 }
 
-static int
+/*static int
 is_environment_variable(const char *value)
 {
     int value_length = string_length(value);
@@ -385,7 +440,7 @@ is_environment_variable(const char *value)
     }
 
     return 0;
-}
+}*/
 
 /*static char *
 get_environment_variable_value(char *value)
@@ -415,12 +470,12 @@ parse_step_2(token_t *token_list_head)
         {
             if (string_search_2_symbols(iter->value, '?', '*'))
                 iter->lex = LEX_REGEX_TEMPLATE;
-            else if (iter-> prev != NULL && iter->prev->lex != LEX_BACKSLAH && \
+            /*else if (iter->prev != NULL && iter->prev->lex != LEX_BACKSLAH && \
                      is_environment_variable(iter->value))
             {
                 iter->lex = LEX_ENVIRONMENT_VARIABLE;
-                /*iter->value = get_environment_variable_value(iter->value);*/
-            }
+                iter->value = get_environment_variable_value(iter->value);
+            }*/
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
                      iter->next != NULL && iter->next->lex == LEX_MORE)
             {

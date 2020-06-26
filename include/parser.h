@@ -10,7 +10,7 @@ enum lex_t
     LEX_AND, /* & */
     LEX_BACKSLAH, /* \ */ LEX_SHARP, /* # */
     LEX_ANDAND, /* && */ LEX_CONV, /* | */ LEX_SEMICOLON, /* ; */
-    LEX_ENVIRONMENT_VARIABLE, /* ${VAR} */
+    LEX_ENVIRONMENT_VARIABLE, /* ${VAR} $? $# $[1-9] */
     LEX_REGEX_TEMPLATE /* * ? */
 };
 typedef enum lex_t lex_t;
@@ -23,7 +23,16 @@ struct token_t
 };
 typedef struct token_t token_t;
 
-enum state_lex_t { STATE_LOOP = 0, STATE_IN_ID, STATE_SINGLE_QUOTES, STATE_DOUBLE_QUOTES, STATE_END};
+enum state_lex_t 
+{ 
+    STATE_LOOP = 0, 
+    STATE_ID, 
+    STATE_SINGLE_QUOTES, 
+    STATE_DOUBLE_QUOTES,
+    STATE_ENVIRONMENT_VARIABLE_STAGE_1,
+    STATE_ENVIRONMENT_VARIABLE_STAGE_2,
+    STATE_END
+};
 typedef enum state_lex_t state_lex_t;
 
 token_t *parse_step_1(void);
