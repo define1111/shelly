@@ -36,6 +36,7 @@ Normal version compiled by gcc, instrumented version compiled by clang.
 
 * Build normal ELF:
 ```
+$ unset ASAN
 $ make shelly
 ```
 * Execute ELF:

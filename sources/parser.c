@@ -358,7 +358,7 @@ parse_step_1()
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_1:
-            value = (char*) realloc(value, ++i * sizeof(char));
+            value = (char*) realloc(value, (++i + 1) * sizeof(char));
             if (value == NULL)
             {
                 perror("realloc");
@@ -575,9 +575,11 @@ free_token_list(token_t **head)
     *head = NULL;
 }
 
-/*void
+#if DEBUG_PRINT_TOKENS
+void
 print_token_list(token_t *head)
 {
     for (; head; head = head->next)
         printf("type = %d value = %s\n", head->lex, head->value);
-}*/
+}
+#endif

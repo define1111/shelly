@@ -30,7 +30,11 @@ run_passes()
             token_list_head = delete_comment_tokens(token_list_head);      
             token_list_head = parse_step_2(token_list_head);
             if (token_list_head == NULL) return PASS_RET_CONTINUE;
-            /*print_token_list(token_list_head);*/
+
+            #if DEBUG_PRINT_TOKENS
+            print_token_list(token_list_head);
+            #endif
+
             break;
         case PASS_SPLIT_TOKENS_CONVEYOR:
         /* DESCRIPTION: this pass take pointer to array of list of tokens

@@ -39,6 +39,9 @@ token_t *parse_step_1(void);
 token_t *delete_comment_tokens(token_t *token_list_head);
 token_t *parse_step_2(token_t *token_list_head);
 void free_token_list(token_t **head);
-/*void print_token_list(token_t *head);*/
+
+#if DEBUG_PRINT_TOKENS
+void print_token_list(token_t *head);
+#endif
 
 #endif

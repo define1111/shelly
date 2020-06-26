@@ -9,7 +9,7 @@ OBJFILES = $(SRCFILES:.c=.o)
 
 ifdef ASAN
 CC = clang
-CFLAGS = -O1 -g -Wall -Wextra -std=c89 -pedantic -fsanitize=address
+CFLAGS = -O0 -g -Wall -Wextra -std=c89 -pedantic -fsanitize=address -D DEBUG_PRINT_TOKENS=1
 else
 CC = gcc
 CFLAGS = -O2 -Wall -Wextra -std=c89 -pedantic
