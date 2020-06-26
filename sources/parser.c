@@ -358,7 +358,7 @@ parse_step_1()
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_1:
-            value = (char*) realloc(value, 3 * sizeof(char));
+            value = (char*) realloc(value, 4 * sizeof(char));
             if (value == NULL)
             {
                 perror("realloc");
@@ -379,15 +379,23 @@ parse_step_1()
             }
             else if (ch == '{')
             {
-                /*state = STATE_ENVIRONMENT_VARIABLE_STAGE_2;
-                is_read = 1;*/
+                state = STATE_ENVIRONMENT_VARIABLE_STAGE_2;
+                is_read = 1;
+                value[3] = '{';
             }
             else
             {
-                
+                state = STATE_ID;
+                is_read = 0;
+                i = 4;
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_2:
+            state = STATE_LOOP;
+            is_read = 1;
+            head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
+            value = NULL;
+            i = 0;
             break;
         case STATE_END:
             return head;
@@ -426,12 +434,6 @@ parse_step_2(token_t *token_list_head)
         {
             if (string_search_2_symbols(iter->value, '?', '*'))
                 iter->lex = LEX_REGEX_TEMPLATE;
-            /*else if (iter->prev != NULL && iter->prev->lex != LEX_BACKSLAH && \
-                     is_environment_variable(iter->value))
-            {
-                iter->lex = LEX_ENVIRONMENT_VARIABLE;
-                iter->value = get_environment_variable_value(iter->value);
-            }*/
             else if (iter->value[0] == '2' && iter->value[1] == '\0' && \
                      iter->next != NULL && iter->next->lex == LEX_MORE)
             {

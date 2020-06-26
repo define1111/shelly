@@ -47,13 +47,13 @@ detect_buitin_command_type(command_t *command)
 void
 run_builtin_commands(conveyor_t *conveyor, unsigned int num, token_t **tokens_conveyor)
 {
-    int save_stdout = -1;
-    int save_stderr = -1;
+    /*int save_stdout = -1;
+    int save_stderr = -1;*/
 
     int i;
     int command_arg = 0;
 
-    if (conveyor->commands[num]->fd_output_file != -1) 
+    /*if (conveyor->commands[num]->fd_output_file != -1) 
     {
         save_stdout = dup(STDOUT_FILENO);
         dup2(conveyor->commands[num]->fd_output_file, STDOUT_FILENO);
@@ -64,7 +64,7 @@ run_builtin_commands(conveyor_t *conveyor, unsigned int num, token_t **tokens_co
         save_stderr = dup(STDERR_FILENO);
         dup2(conveyor->commands[num]->fd_error_output_file, STDERR_FILENO);
         close(conveyor->commands[num]->fd_error_output_file);
-    }
+    }*/
 
     switch (conveyor->commands[num]->builtin_command_type)
     {
@@ -117,7 +117,7 @@ run_builtin_commands(conveyor_t *conveyor, unsigned int num, token_t **tokens_co
         exit(SUCCESS_EXIT);
     }
 
-    if (save_stdout != -1)
+    /*if (save_stdout != -1)
     {
         dup2(save_stdout, STDOUT_FILENO);
         close(save_stdout);
@@ -126,5 +126,5 @@ run_builtin_commands(conveyor_t *conveyor, unsigned int num, token_t **tokens_co
     {
         dup2(save_stderr, STDOUT_FILENO);
         close(save_stderr);
-    }
+    }*/
 }

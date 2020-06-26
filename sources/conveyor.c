@@ -126,6 +126,12 @@ run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor)
                     close(conveyor->commands[i]->fd_input_file);
                 }
 
+                if (conveyor->commands[i]->fd_output_file != -1) 
+                {
+                    dup2(conveyor->commands[i]->fd_output_file, STDOUT_FILENO);
+                    close(conveyor->commands[i]->fd_output_file);
+                }
+
                 if (conveyor->commands[i]->fd_error_output_file != -1)
                 {
                     dup2(conveyor->commands[i]->fd_error_output_file, STDERR_FILENO);
