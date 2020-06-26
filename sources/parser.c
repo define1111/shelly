@@ -358,42 +358,34 @@ parse_step_1()
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_1:
-            value = (char*) realloc(value, (++i + 1) * sizeof(char));
+            value = (char*) realloc(value, 3 * sizeof(char));
             if (value == NULL)
             {
                 perror("realloc");
                 exit(ALLOC_ERR);
             }
 
-            value[i - 1] = (char) ch;
+            value[0] = (char) prev_ch;
+            value[1] = (char) ch;
 
             if (ch == '#' || ch == '?' || (ch >= '0' && ch <= '9'))
             {
                 state = STATE_LOOP;
                 is_read = 1;
-                value[i] = '\0';
+                value[2] = '\0';
                 head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
                 value = NULL;
                 i = 0;
             }
-            
-            /*if (!(ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                  ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';'))
+            else if (ch == '{')
             {
-                state = STATE_ENVIRONMENT_VARIABLE_STAGE_1;
-                is_read = 1;
-                value[i - 1] = (char) ch;
+                /*state = STATE_ENVIRONMENT_VARIABLE_STAGE_2;
+                is_read = 1;*/
             }
-            if (ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
-                ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';')
+            else
             {
-                state = STATE_LOOP;
-                is_read = 0;
-                value[i - 1] = '\0';
-                head = push_tail_token(head, LEX_ID, value);
-                value = NULL;
-                i = 0;
-            }*/
+                
+            }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_2:
             break;
@@ -422,42 +414,6 @@ delete_comment_tokens(token_t *token_list_head)
     
     return token_list_head;
 }
-
-/*static int
-is_environment_variable(const char *value)
-{
-    int value_length = string_length(value);
-
-    if (value_length == 2)
-    {
-        if (value[0] == '$' && (value[1] == '?' || (value[1] >= '0' && value[1] <= '9')))
-            return 1;
-    }
-    else if (value_length >= 4) 
-    {
-        if (value[0] == '$' && value[1] == '{' && value[value_length - 1] == '}')
-            return 1;
-    }
-
-    return 0;
-}*/
-
-/*static char *
-get_environment_variable_value(char *value)
-{
-    int value_length = string_length(value);
-    int i;
-
-    for (i = 0; i < value_length - 1; ++i)
-        value[i] = value[i + 1];
-
-    for (i = 0; i < value_length - 2; ++i)
-        value[i] = value[i + 1];
-
-    value[value_length - 3] = '\0';
-
-    return value;
-}*/
 
 token_t *
 parse_step_2(token_t *token_list_head)
@@ -576,10 +532,53 @@ free_token_list(token_t **head)
 }
 
 #if DEBUG_PRINT_TOKENS
+static char *
+lex2str(lex_t lex)
+{
+    switch (lex)
+    {
+    case LEX_NONE:
+        return "LEX_NONE";
+    case LEX_ID:
+        return "LEX_ID";
+    case LEX_SINGLE_QUOTES:
+        return "LEX_SINGLE_QUOTES";
+    case LEX_DOUBLE_QUOTES:
+        return "LEX_DOUBLE_QUOTES";
+    case LEX_MORE:
+        return "LEX_MORE";
+    case LEX_MOREMORE:
+        return "LEX_MOREMORE";
+    case LEX_TWO_MORE:
+        return "LEX_TWO_MORE";
+    case LEX_TWO_MOREMORE:
+        return "LEX_TWO_MOREMORE";
+    case LEX_LESS:
+        return "LEX_LESS";
+    case LEX_AND:
+        return "LEX_AND";
+    case LEX_BACKSLAH:
+        return "LEX_BACKSLAH";
+    case LEX_ANDAND:
+        return "LEX_ANDAND";
+    case LEX_CONV:
+        return "LEX_CONV";
+    case LEX_SEMICOLON:
+        return "LEX_SEMICOLON";
+    case LEX_ENVIRONMENT_VARIABLE:
+        return "LEX_ENVIRONMENT_VARIABLE";
+    case LEX_REGEX_TEMPLATE:
+        return "LEX_REGEX_TEMPLATE";
+    default:
+        return "Unknown lex";
+    }
+}
+
 void
 print_token_list(token_t *head)
 {
+    fprintf(stderr, "DEBUG PRINT TOKENS\n");
     for (; head; head = head->next)
-        printf("type = %d value = %s\n", head->lex, head->value);
+        fprintf(stderr, "<%s; %s>\n", lex2str(head->lex), head->value);
 }
 #endif
