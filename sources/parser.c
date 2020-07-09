@@ -386,8 +386,8 @@ parse_step_1()
             else
             {
                 state = STATE_ID;
-                is_read = 0;
-                i = 4;
+                is_read = 1;
+                i = 2;
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_2:

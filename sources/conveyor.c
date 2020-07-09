@@ -92,6 +92,7 @@ run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor)
 
     for (i = 0; i < conveyor->length; ++i)
     {
+        /* builtin commands with no fork */
         switch(conveyor->commands[i]->builtin_command_type)
         {
         case BUILTIN_COMMAND_CD:
@@ -186,6 +187,7 @@ run_conveyor(conveyor_t *conveyor, token_t **tokens_conveyor)
                 }
             }
             
+            /* builtin and external commands with fork */
             switch(conveyor->commands[i]->builtin_command_type)
             {
             case BUILTIN_COMMAND_NONE:
