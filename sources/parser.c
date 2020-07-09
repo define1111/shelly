@@ -358,7 +358,7 @@ parse_step_1()
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_1:
-            value = (char*) realloc(value, 4 * sizeof(char));
+            value = (char*) realloc(value, 3 * sizeof(char));
             if (value == NULL)
             {
                 perror("realloc");
@@ -381,7 +381,7 @@ parse_step_1()
             {
                 state = STATE_ENVIRONMENT_VARIABLE_STAGE_2;
                 is_read = 1;
-                value[3] = '{';
+                i = 2;
             }
             else
             {
@@ -391,11 +391,30 @@ parse_step_1()
             }
             break;
         case STATE_ENVIRONMENT_VARIABLE_STAGE_2:
-            state = STATE_LOOP;
-            is_read = 1;
-            head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
-            value = NULL;
-            i = 0;
+            value = (char*) realloc(value, ++i * sizeof(char));
+            if (value == NULL)
+            {
+                perror("realloc");
+                exit(ALLOC_ERR);
+            }
+
+            value[i - 1] = (char) ch;
+
+            if (ch == '}')
+            {
+                value = (char*) realloc(value, ++i * sizeof(char));
+                if (value == NULL)
+                {
+                    perror("realloc");
+                    exit(ALLOC_ERR);
+                }
+                state = STATE_LOOP;
+                is_read = 1;
+                value[i - 1] = '\0';
+                head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
+                value = NULL;
+                i = 0;
+            }
             break;
         case STATE_END:
             return head;
