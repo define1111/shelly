@@ -366,10 +366,19 @@ parse_step_1()
             }
 
             value[0] = (char) prev_ch;
-            value[1] = (char) ch;
 
-            if (ch == '#' || ch == '?' || (ch >= '0' && ch <= '9'))
+            if (ch == '\n' || ch == EOF || ch == ' ' || ch == '\t')
             {
+                state = STATE_LOOP;
+                is_read = 1;
+                value[1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
+                value = NULL;
+                i = 0;
+            }
+            else if (ch == '#' || ch == '?' || (ch >= '0' && ch <= '9'))
+            {
+                value[1] = (char) ch;
                 state = STATE_LOOP;
                 is_read = 1;
                 value[2] = '\0';
@@ -412,6 +421,21 @@ parse_step_1()
                 is_read = 1;
                 value[i - 1] = '\0';
                 head = push_tail_token(head, LEX_ENVIRONMENT_VARIABLE, value);
+                value = NULL;
+                i = 0;
+            }
+            else if (ch == EOF || ch == '\n' || ch == ' ' || ch == '\t')
+            {
+                value = (char*) realloc(value, ++i * sizeof(char));
+                if (value == NULL)
+                {
+                    perror("realloc");
+                    exit(ALLOC_ERR);
+                }
+                state = STATE_LOOP;
+                is_read = 1;
+                value[i - 1] = '\0';
+                head = push_tail_token(head, LEX_ID, value);
                 value = NULL;
                 i = 0;
             }
