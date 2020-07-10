@@ -84,7 +84,7 @@ parse_step_1()
                 state = STATE_LOOP;
                 is_read = 1;
             }
-            else if (ch == EOF || ch == '\n')
+            else if (ch == EOF || ch == '\n' || ch == '\r')
             {
                 state = STATE_END;
                 is_read = 0;
@@ -241,7 +241,7 @@ parse_step_1()
             }
             if (!(ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
                   ch == '\'' || ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';' || \
-                  ch == '#'))
+                  ch == '#' || ch == '\r'))
             {
                 state = STATE_ID;
                 if (ch == '\\') /* mb another one state of DFA for spaces and end token? */
@@ -269,7 +269,7 @@ parse_step_1()
             }
             if (ch == ' ' || ch == '\t' || ch == EOF || ch == '\n' || ch == '"' || \
                 ch == '\'' ||ch == '>' || ch == '<' || ch == '&' || ch == '|' || ch == ';' || \
-                ch == '#')
+                ch == '#' || ch == '\r')
             {
                 state = STATE_LOOP;
                 is_read = 0;
@@ -349,7 +349,7 @@ parse_step_1()
                 value[i - 1] = (char) ch;
             }
             
-            if (ch == EOF || ch == '\n') /* mb another state for error ? */
+            if (ch == EOF || ch == '\n' || ch == '\r') /* mb another state for error ? */
             {
                 printf("syntax error: close \' expected\n");
                 free(value);
@@ -367,7 +367,7 @@ parse_step_1()
 
             value[0] = (char) prev_ch;
 
-            if (ch == '\n' || ch == EOF || ch == ' ' || ch == '\t')
+            if (ch == '\n' || ch == EOF || ch == ' ' || ch == '\t' || ch == '\r')
             {
                 state = STATE_LOOP;
                 is_read = 1;
@@ -388,6 +388,7 @@ parse_step_1()
             }
             else if (ch == '{')
             {
+                value[1] = (char) ch;
                 state = STATE_ENVIRONMENT_VARIABLE_STAGE_2;
                 is_read = 1;
                 i = 2;
@@ -424,7 +425,7 @@ parse_step_1()
                 value = NULL;
                 i = 0;
             }
-            else if (ch == EOF || ch == '\n' || ch == ' ' || ch == '\t')
+            else if (ch == EOF || ch == '\n' || ch == ' ' || ch == '\t' || ch == '\r')
             {
                 value = (char*) realloc(value, ++i * sizeof(char));
                 if (value == NULL)
