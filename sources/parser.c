@@ -395,6 +395,7 @@ parse_step_1()
             }
             else
             {
+                value[1] = (char) ch;
                 state = STATE_ID;
                 is_read = 1;
                 i = 2;
